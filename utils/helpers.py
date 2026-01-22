@@ -18,3 +18,9 @@ def cleanup_test_cats(api_base_url):
                         print(f"⚠️ Кот {cat['id']} не удалился!")
     except Exception as e:
         print(f"Ошибка очистки: {e}")
+
+def assert_cat_response(data, expected_name, expected_age, expected_breed):
+    assert "id" in data
+    assert data["name"] == expected_name
+    assert data["age"] == expected_age
+    assert data["breed"] == expected_breed

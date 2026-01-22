@@ -8,8 +8,13 @@ from utils.helpers import generate_unique_cat_name
 @allure.feature("Contract")
 @allure.story("Response structure")
 def test_cat_response_contract(api_base_url):
+    # Arrange 
     name = generate_unique_cat_name()
+    
+    # Act
     resp = requests.post(api_base_url, json={"name": name, "age": 3, "breed": "C"})
+    
+    # Assert
     assert resp.status_code == 201
     data = resp.json()["data"]
     assert_cat_contract(data)
@@ -26,11 +31,12 @@ def test_cat_response_contract(api_base_url):
     {}])                                                        # пустой JSON
 def test_cat_contract_invalid_input(api_base_url, invalid_payload):
     """Негативный тест: при отправке некорректных данных API не должен возвращать валидный объект кота."""
+    # Act
     with allure.step("Отправляем запрос с невалидными данными"):
         resp = requests.post(api_base_url, json=invalid_payload)
 
+    # Assert
     with allure.step("Проверяем, что ответ не соответствует контракту"):
         assert resp.status_code == 400, f"Ожидался 400, получен {resp.status_code}"
-        response_json = resp.json()
-        assert "data" not in response_json
-        assert "message" in response_json or "error" in response_json
+        assert "data" not in resp.json()
+        assert "message" in resp.json() or "error" in resp.json()
