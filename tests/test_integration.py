@@ -1,58 +1,116 @@
 import pytest
-import requests
 import allure
-from utils.helpers import generate_unique_cat_name
+from utils.helpers import generate_unique_cat_name, assert_cat_response
 
 # проверка взаимодействия с БД
-
 @pytest.mark.integration
 @allure.feature("Integration")
-@allure.story("State verification")
-def test_cat_list_length_changes(api_base_url):
+def test_cat_list_length_changes(api):
     # Arrange
     name = generate_unique_cat_name()
-    payload = {"name": name, "age": 1, "breed": "S"}
+    payload = {"name": name, "age": 1, "breed": "Integration"}
 
     # Act
     with allure.step("Получаем исходный список котов"):
-        initial_resp = requests.get(api_base_url)
+        initial_resp = api.get_all_cats()
 
     with allure.step("Создаём нового кота"):
-        create_resp = requests.post(api_base_url, json=payload)
-        cat_id = create_resp.json()["data"]["id"]
+        create_resp = api.create_cat(payload)
+    cat_id = create_resp.json()["id"]
 
     with allure.step("Получаем список котов после добавления"):
-        after_create_resp = requests.get(api_base_url)    
+        after_create_resp = api.get_all_cats()
 
     with allure.step("Удаляем созданного кота"):
-        delete_resp = requests.delete(f"{api_base_url}/{cat_id}")
+        delete_resp = api.delete_cat(cat_id)
 
     with allure.step("Получаем список котов после удаления"):
-        final_resp = requests.get(api_base_url)
+        final_resp = api.get_all_cats()
 
     # Assert
     with allure.step("Проверяем начальное количество котов"):
-        assert initial_resp.status_code == 200
-        initial_data = initial_resp.json()["data"]
-        initial_count = len(initial_data)
-        allure.attach(str(initial_count), name="Исходное количество", attachment_type=allure.attachment_type.TEXT)
+        initial_count = len(initial_resp.json())
 
-    with allure.step("Проверяем успешное создание кота"):
-        assert create_resp.status_code == 201
-        allure.attach(str(cat_id), name="ID созданного кота", attachment_type=allure.attachment_type.TEXT)
-        allure.attach(str(payload), name="Данные запроса", attachment_type=allure.attachment_type.JSON)
-
-    with allure.step("Проверяем, что количество котов увеличилось на 1"):
-        assert after_create_resp.status_code == 200
-        new_count = len(after_create_resp.json()["data"])
+    with allure.step("Проверяем, что после добавления количество котов увеличилось"):
+        new_count = len(after_create_resp.json())
         assert new_count == initial_count + 1, f"Ожидалось {initial_count + 1}, получено {new_count}"
-        allure.attach(str(new_count), name="Количество после создания", attachment_type=allure.attachment_type.TEXT)
-
-    with allure.step("Проверяем удаление"):
-        assert delete_resp.status_code == 204
 
     with allure.step("Проверяем, что количество вернулось к исходному"):
-        assert final_resp.status_code == 200
-        final_count = len(final_resp.json()["data"])
+        final_count = len(final_resp.json())
         assert final_count == initial_count, f"Ожидалось {initial_count}, получено {final_count}"
-        allure.attach(str(final_count), name="Количество после удаления", attachment_type=allure.attachment_type.TEXT)
+
+
+@pytest.mark.integration
+@allure.feature("Integration")
+def test_cat_create_get_delete(api):
+    # Arrange
+    payload = {"name": generate_unique_cat_name(), "age": 4,  "breed": "Integration",}
+
+    # Act
+    with allure.step("Создаём кота"):
+        create_resp = api.create_cat(payload)
+        cat_id = create_resp.json()["id"]
+
+    with allure.step("Проверяем его наличие после добавления"):
+        get_resp = api.get_cat_by_id(cat_id)
+    
+    with allure.step("Удаляем кота"):
+        api.delete_cat(cat_id)
+
+    with allure.step("Проверяем его наличие после добавления"):
+        get_deleted = api.get_cat_by_id(cat_id)
+
+    # Assert
+    with allure.step("Проверяем, что кот после добавления доступен по ID"):
+        assert get_resp.status_code == 200
+    with allure.step("Проверяем, что кот исчез"):
+        assert get_deleted.status_code == 404
+
+@pytest.mark.integration
+@allure.feature("Integration")
+def test_invalid_cat_not_persisted(api):
+    # Arrange
+    payload = {"name": "A", "age": -1, "breed": "Integration",}
+
+    # Act
+    with allure.step("Получаем исходный список котов"):
+        initial_resp = api.get_all_cats()
+    
+    with allure.step("Добавляем котас невалидными данными"):
+        create_resp = api.create_cat(payload)
+
+    with allure.step("Получаем список после попытки добавленияя"):
+        after_resp = api.get_all_cats()
+    
+    # Assert
+    with allure.step("Сравниваем количество до и после попытки добавления"):
+        initial_count = len(initial_resp.json())
+        after_count = len(after_resp.json())
+        assert after_count == initial_count
+
+
+@pytest.mark.integration
+@allure.feature("Integration")
+def test_multiple_cat_creation(api):
+    # Arrange 
+    payloads = [
+        {
+            "name": generate_unique_cat_name(),
+            "age": 1,
+            "breed": "Integration",
+        }
+        for _ in range(3)
+    ]
+    created_ids = []
+
+    # Act
+    for payload in payloads:
+        response = api.create_cat(payload)
+        created_ids.append(response.json()["id"])
+
+    all_cats_response = api.get_all_cats()
+    all_cat_ids = [cat["id"] for cat in all_cats_response.json()]
+
+    # Assert
+    for cat_id in created_ids:
+        assert cat_id in all_cat_ids
