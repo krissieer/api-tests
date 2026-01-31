@@ -33,34 +33,14 @@
         ]
       },
       "get": {
-        "description": "Returns a list of all cats. Supports filtering by breed and adoption status.",
         "operationId": "CatsController_findAll",
-        "parameters": [
-          {
-            "name": "breed",
-            "required": false,
-            "in": "query",
-            "description": "Filter cats by specific breed",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "isAdopted",
-            "required": false,
-            "in": "query",
-            "description": "Filter by adoption status (true/false)",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Return list of cats."
           }
         },
-        "summary": "Search shelter database",
+        "summary": "Get all cats in the shelter",
         "tags": [
           "Cats Management"
         ]
@@ -68,7 +48,7 @@
     },
     "/cats/{id}": {
       "get": {
-        "description": "Returns full information about a specific cat, including history and owner details if adopted.",
+        "description": "Retrieves full information about a specific cat by its unique ID.",
         "operationId": "CatsController_findOne",
         "parameters": [
           {
@@ -77,6 +57,7 @@
             "in": "path",
             "description": "Unique numerical ID of the cat",
             "schema": {
+              "example": 1,
               "type": "number"
             }
           }
@@ -98,7 +79,6 @@
         ]
       },
       "delete": {
-        "description": "Permanently deletes a cat record from the database.",
         "operationId": "CatsController_remove",
         "parameters": [
           {
@@ -112,142 +92,25 @@
         ],
         "responses": {
           "204": {
-            "description": "Record deleted successfully."
+            "description": "Cat deleted."
           },
           "400": {
-            "description": "Invalid ID format. Expected an integer."
+            "description": "Invalid ID format."
           },
           "404": {
-            "description": "Cat not found, cannot delete."
+            "description": "Cat not found."
           }
         },
-        "summary": "Remove cat from system",
+        "summary": "Remove a cat from the database",
         "tags": [
           "Cats Management"
-        ]
-      }
-    },
-    "/cats/{id}/adopt": {
-      "patch": {
-        "description": "Links a cat to a specific user. Sets adoption status to true and records the current timestamp.",
-        "operationId": "CatsController_adopt",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "userId": {
-                    "type": "number",
-                    "description": "Internal ID of the adopter"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Adoption process completed."
-          },
-          "400": {
-            "description": "Cat is already adopted or invalid user ID."
-          },
-          "404": {
-            "description": "Cat or User not found."
-          }
-        },
-        "summary": "Process adoption",
-        "tags": [
-          "Cats Management"
-        ]
-      }
-    },
-    "/users": {
-      "post": {
-        "operationId": "UsersController_create",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateUserDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "User successfully created."
-          }
-        },
-        "summary": "Create new user/volunteer",
-        "tags": [
-          "Users Management"
-        ]
-      },
-      "get": {
-        "description": "Returns a list of all registered users.",
-        "operationId": "UsersController_findAll",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "summary": "List all users",
-        "tags": [
-          "Users Management"
-        ]
-      }
-    },
-    "/users/{id}": {
-      "get": {
-        "description": "Retrieves user details and the list of cats they have adopted.",
-        "operationId": "UsersController_findOne",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "User found."
-          },
-          "400": {
-            "description": "Invalid ID format provided."
-          },
-          "404": {
-            "description": "User not found."
-          }
-        },
-        "summary": "Get user profile",
-        "tags": [
-          "Users Management"
         ]
       }
     }
   },
   "info": {
-    "title": "Приют для кошек",
-    "description": "Система управления кошками и пользователями (без регистрации)",
+    "title": "Cat Shelter Foundation API",
+    "description": "Basic system for tracking shelter animals. Assignment #1.",
     "version": "1.0",
     "contact": {
 
@@ -255,12 +118,8 @@
   },
   "tags": [
     {
-      "name": "cats",
-      "description": "Операции с животными"
-    },
-    {
-      "name": "users",
-      "description": "Операции с пользователями"
+      "name": "Cats Management",
+      "description": "Core operations for cat records"
     }
   ],
   "servers": [],
@@ -272,56 +131,31 @@
           "name": {
             "type": "string",
             "example": "Barsik",
-            "description": "The official name of the cat for registration",
-            "minLength": 2
+            "description": "Name of the cat"
           },
           "age": {
             "type": "number",
             "example": 2,
-            "description": "Age of the cat in years",
-            "minimum": 0
+            "description": "Age of the cat"
           },
           "breed": {
             "type": "string",
             "example": "Siamese",
-            "description": "Breed or closest phenotype"
+            "description": "Breed of the cat"
           },
           "history": {
             "type": "string",
-            "example": "Found in a park during winter 2024",
-            "description": "Background story of how the cat arrived at the shelter"
+            "example": "Found in 2024"
           },
           "description": {
             "type": "string",
-            "example": "A very friendly and playful cat, loves children.",
-            "description": "Detailed characteristic or personality description"
+            "example": "Very friendly"
           }
         },
         "required": [
           "name",
           "age",
           "breed"
-        ]
-      },
-      "CreateUserDto": {
-        "type": "object",
-        "properties": {
-          "firstName": {
-            "type": "string",
-            "example": "Ivan",
-            "description": "First name of the user/volunteer",
-            "minLength": 2
-          },
-          "lastName": {
-            "type": "string",
-            "example": "Ivanov",
-            "description": "Last name of the user/volunteer",
-            "minLength": 2
-          }
-        },
-        "required": [
-          "firstName",
-          "lastName"
         ]
       }
     }
