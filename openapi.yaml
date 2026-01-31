@@ -57,7 +57,7 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Success"
           }
         },
         "summary": "Search shelter database",
@@ -95,8 +95,14 @@
           "200": {
             "description": "Cat info updated successfully."
           },
+          "400": {
+            "description": "Invalid input or ID"
+          },
           "404": {
             "description": "Cat not found."
+          },
+          "409": {
+            "description": "New name already taken"
           }
         },
         "summary": "Update cat information",
@@ -228,6 +234,9 @@
         "responses": {
           "201": {
             "description": "User successfully created."
+          },
+          "400": {
+            "description": "Validation failed"
           }
         },
         "summary": "Create new user/volunteer",
@@ -299,6 +308,9 @@
           "204": {
             "description": "User deleted successfully."
           },
+          "400": {
+            "description": "Invalid ID"
+          },
           "404": {
             "description": "User not found."
           }
@@ -335,6 +347,9 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Invalid ID"
           },
           "404": {
             "description": "User not found"
@@ -410,28 +425,23 @@
         "properties": {
           "name": {
             "type": "string",
-            "example": "Barsik",
-            "description": "Updated name of the cat"
+            "example": "Barsik"
           },
           "age": {
             "type": "number",
-            "example": 3,
-            "description": "Updated age of the cat"
+            "example": 3
           },
           "breed": {
             "type": "string",
-            "example": "Siamese",
-            "description": "Updated breed"
+            "example": "Siamese"
           },
           "history": {
             "type": "string",
-            "example": "Doing well, very active",
-            "description": "Updated health or history notes"
+            "example": "Healthy and active"
           },
-          "isAdopted": {
-            "type": "boolean",
-            "example": true,
-            "description": "Status: true if cat is adopted"
+          "description": {
+            "type": "string",
+            "example": "Loves playing with balls"
           }
         }
       },
