@@ -3,6 +3,7 @@ import allure
 from utils.helpers import generate_unique_cat_name, assert_cat_response
 
 # проверка взаимодействия с БД
+@pytest.mark.task1
 @pytest.mark.integration
 @allure.feature("Integration")
 def test_cat_list_length_changes(api):
@@ -39,7 +40,7 @@ def test_cat_list_length_changes(api):
         final_count = len(final_resp.json())
         assert final_count == initial_count, f"Ожидалось {initial_count}, получено {final_count}"
 
-
+@pytest.mark.task1
 @pytest.mark.integration
 @allure.feature("Integration")
 def test_cat_create_get_delete(api):
@@ -66,6 +67,7 @@ def test_cat_create_get_delete(api):
     with allure.step("Проверяем, что кот исчез"):
         assert get_deleted.status_code == 404
 
+@pytest.mark.task1
 @pytest.mark.integration
 @allure.feature("Integration")
 def test_invalid_cat_not_persisted(api):
@@ -88,7 +90,7 @@ def test_invalid_cat_not_persisted(api):
         after_count = len(after_resp.json())
         assert after_count == initial_count
 
-
+@pytest.mark.task1
 @pytest.mark.integration
 @allure.feature("Integration")
 def test_multiple_cat_creation(api):

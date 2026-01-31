@@ -4,6 +4,9 @@ import requests
 def generate_unique_cat_name(prefix="TestCat"):
     return f"{prefix}_{uuid.uuid4().hex[:8]}"
 
+# def generate_unique_user_name(prefix="TestUser"):
+#     return f"{prefix}_{uuid.uuid4().hex[:8]}"
+
 def cleanup_test_cats(api_client):
     """Удаляет всех котов, чьи имена начинаются с 'TestCat_'"""
     try:
@@ -18,6 +21,21 @@ def cleanup_test_cats(api_client):
                         print(f" Кот {cat['id']} не удалился!")
     except Exception as e:
         print(f"Ошибка очистки: {e}")
+
+# def cleanup_test_users(api_client):
+#     """Удаляет всех пользователей, чьи имена начинаются с 'TestUser_'"""
+#     try:
+#         response = api_client.get_all_users()
+#         if response.status_code == 200:
+#             users = response.json()
+#             for user in users:
+#                 if user.get("name", "").startswith("TestUser_"):
+#                     api_client.delete_cat(cat['id'])
+#                     check = api_client.get_cat_by_id(cat['id'])
+#                     if check.status_code == 200:
+#                         print(f" Кот {cat['id']} не удалился!")
+#     except Exception as e:
+#         print(f"Ошибка очистки: {e}")
 
 def assert_cat_response(data, expected_name, expected_age, expected_breed):
     assert "id" in data

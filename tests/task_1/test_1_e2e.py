@@ -2,6 +2,7 @@ import pytest
 import allure
 from utils.helpers import generate_unique_cat_name, assert_cat_response
 
+@pytest.mark.task1
 @pytest.mark.e2e
 @allure.feature("End-to-End")
 @allure.story("Full lifecycle of a cat")

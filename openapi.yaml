@@ -67,6 +67,43 @@
       }
     },
     "/cats/{id}": {
+      "patch": {
+        "description": "Updates specific fields like name, breed, or history. System fields (isAdopted) should not be modified here.",
+        "operationId": "CatsController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Unique numerical ID of the cat",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCatDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Cat info updated successfully."
+          },
+          "404": {
+            "description": "Cat not found."
+          }
+        },
+        "summary": "Update cat information",
+        "tags": [
+          "Cats Management"
+        ]
+      },
       "get": {
         "description": "Returns full information about a specific cat, including history and owner details if adopted.",
         "operationId": "CatsController_findOne",
@@ -242,6 +279,71 @@
         "tags": [
           "Users Management"
         ]
+      },
+      "delete": {
+        "description": "Permanently removes a user. Note: Associated cats will remain in the system but will become ownerless (SET NULL).",
+        "operationId": "UsersController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "User ID to delete",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "User deleted successfully."
+          },
+          "404": {
+            "description": "User not found."
+          }
+        },
+        "summary": "Delete user profile",
+        "tags": [
+          "Users Management"
+        ]
+      }
+    },
+    "/users/{id}/cats": {
+      "get": {
+        "description": "Returns user profile with the list of their adopted cats.",
+        "operationId": "UsersController_getUserCats",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "User ID",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserEntity"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found"
+          }
+        },
+        "summary": "Get all cats adopted by a specific user",
+        "tags": [
+          "Users Management"
+        ]
       }
     }
   },
@@ -303,6 +405,36 @@
           "breed"
         ]
       },
+      "UpdateCatDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Barsik",
+            "description": "Updated name of the cat"
+          },
+          "age": {
+            "type": "number",
+            "example": 3,
+            "description": "Updated age of the cat"
+          },
+          "breed": {
+            "type": "string",
+            "example": "Siamese",
+            "description": "Updated breed"
+          },
+          "history": {
+            "type": "string",
+            "example": "Doing well, very active",
+            "description": "Updated health or history notes"
+          },
+          "isAdopted": {
+            "type": "boolean",
+            "example": true,
+            "description": "Status: true if cat is adopted"
+          }
+        }
+      },
       "CreateUserDto": {
         "type": "object",
         "properties": {
@@ -323,6 +455,12 @@
           "firstName",
           "lastName"
         ]
+      },
+      "UserEntity": {
+        "type": "object",
+        "properties": {
+
+        }
       }
     }
   }

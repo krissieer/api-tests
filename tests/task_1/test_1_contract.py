@@ -1,8 +1,9 @@
 import pytest
 import allure
 from utils.helpers import generate_unique_cat_name
+import utils.openapi_validator
 
-
+@pytest.mark.task1
 @pytest.mark.contract
 @allure.feature("Contract")
 @allure.story("POST/cats")
@@ -21,7 +22,8 @@ def test_create_cat_contract(api, openapi_validator):
     with allure.step("Проверяем контракт"):
         openapi_validator.validate_response(create_resp)
 
-@pytest.mark.functional
+@pytest.mark.task1
+@pytest.mark.contract
 @allure.feature("Contract")
 @allure.story("POST/cats")
 def test_create_cat_duplicate_name(api, openapi_validator):
@@ -46,7 +48,7 @@ def test_create_cat_duplicate_name(api, openapi_validator):
         openapi_validator.validate_response(resp1)
         openapi_validator.validate_response(resp2)
 
-
+@pytest.mark.task1
 @pytest.mark.contract
 @allure.feature("Contract")
 @allure.story("GET/cats")
@@ -67,6 +69,7 @@ def test_get_all_cats_contract(api, openapi_validator):
     with allure.step("Проверяем контракт"):
         openapi_validator.validate_response(get_resp)
 
+@pytest.mark.task1
 @pytest.mark.contract
 @allure.feature("Contract")
 @allure.story("GET/cats/{id}")
@@ -89,6 +92,7 @@ def test_get_cat_by_id_contract(api, openapi_validator):
     with allure.step("Проверяем контракт"):
         openapi_validator.validate_response(get_resp)
 
+@pytest.mark.task1
 @pytest.mark.contract
 @allure.feature("Contract")
 @allure.story("GET with invalid ID")
@@ -104,7 +108,7 @@ def test_get_by_invalid_ID_contract(api, openapi_validator, ID, expected_status,
     with allure.step("Проверяем контракт"):
         openapi_validator.validate_response(get_resp)
 
-
+@pytest.mark.task1
 @pytest.mark.contract
 @allure.feature("Contract")
 @allure.story("DELETE/cats/{id}")
@@ -126,7 +130,7 @@ def test_get_cat_by_id_contract(api, openapi_validator):
     with allure.step("Проверяем контракт"):
         openapi_validator.validate_response(delete_resp)
 
-
+@pytest.mark.task1
 @pytest.mark.contract
 @allure.feature("Contract")
 @allure.story("DELETE with invalid ID")
@@ -150,6 +154,7 @@ INVALID_PAYLOADS = [
     ({"name": "TestCat_", "age": "old", "breed": "B"}, "invalid type of 'age'"),
     ({"name": 5, "age": 5, "breed": 5}, "invalid type of 'name' and 'breed'"),
     ({}, "empty payload")]
+@pytest.mark.task1
 @pytest.mark.contract
 @allure.feature("Contract")
 @allure.story("POST/cats invalid payload")
@@ -166,8 +171,7 @@ def test_create_cat_invalid_contract(api, openapi_validator, payload, descriptio
     with allure.step("Проверяем контракт"):
         openapi_validator.validate_response(resp)
 
-
-
+@pytest.mark.task1
 @pytest.mark.contract
 @allure.feature("Contract")
 @allure.story("Boundary: name length")
@@ -186,7 +190,7 @@ def test_create_cat_name_too_short(api, openapi_validator, name):
     with allure.step("Проверяем контракт"):
         openapi_validator.validate_response(response)
     
-
+@pytest.mark.task1
 @pytest.mark.contract
 @allure.feature("Contract")
 @allure.story("Boundary: age values")
