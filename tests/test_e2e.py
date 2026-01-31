@@ -9,9 +9,7 @@ def test_cat_full_lifecycle(api):
     # Arrange 
     name = generate_unique_cat_name()
     payload = {"name": name, "age": 1, "breed": "E2E"}
-    # new_name = generate_unique_cat_name()
-    # update_data = {"name": new_name, "age": 5, "breed": "Updated E2E"}
-
+    
     # Act
     with allure.step("Cоздаем кота"):
         create_resp = api.create_cat(payload)
@@ -30,13 +28,6 @@ def test_cat_full_lifecycle(api):
         cats = list_resp.json()
         assert any(c["id"] == cat_id for c in cats)
     
-    #with allure.step("Обновляем данные кота"):
-    #    update_resp = requests.patch(f"{api_base_url}/{cat_id}", json=update_data)
-    #with allure.step("Проверяем успешное обновление данных"):
-    #    assert update_resp.status_code == 200
-    #    updated = update_resp.json()
-    #    assert_cat_response(updated, new_name, 5, "Updated E2E")
-
     # Act   
     with allure.step("Удаляем кота"):
         delete_resp = api.delete_cat(cat_id)

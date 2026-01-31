@@ -85,11 +85,11 @@
           "200": {
             "description": "Cat data retrieved successfully."
           },
+          "400": {
+            "description": "Invalid ID format. Expected an integer."
+          },
           "404": {
             "description": "Cat not found."
-          },
-          "400": {
-            "description": "Invalid ID format"
           }
         },
         "summary": "Get cat details",
@@ -114,11 +114,11 @@
           "204": {
             "description": "Record deleted successfully."
           },
-          "404": {
-            "description": "Cat not found"
-          },
           "400": {
-            "description": "Invalid ID format"
+            "description": "Invalid ID format. Expected an integer."
+          },
+          "404": {
+            "description": "Cat not found, cannot delete."
           }
         },
         "summary": "Remove cat from system",
@@ -230,6 +230,9 @@
         "responses": {
           "200": {
             "description": "User found."
+          },
+          "400": {
+            "description": "Invalid ID format provided."
           },
           "404": {
             "description": "User not found."

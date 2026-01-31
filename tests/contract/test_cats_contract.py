@@ -5,7 +5,7 @@ from utils.helpers import generate_unique_cat_name
 
 @pytest.mark.contract
 @allure.feature("Contract")
-@allure.story("POST /cats")
+@allure.story("POST/cats")
 def test_create_cat_contract(api, openapi_validator):
     # Arrange
     name = generate_unique_cat_name()
@@ -20,6 +20,31 @@ def test_create_cat_contract(api, openapi_validator):
         assert create_resp.status_code == 201
     with allure.step("Проверяем контракт"):
         openapi_validator.validate_response(create_resp)
+
+@pytest.mark.functional
+@allure.feature("Contract")
+@allure.story("POST/cats")
+def test_create_cat_duplicate_name(api, openapi_validator):
+    """Негативный тест: попытка создать кота с дублирующимся именем"""
+    # Arrange
+    name = generate_unique_cat_name()
+    payload1 = {"name": name, "age": 2, "breed": "Persian"}
+    payload2 = {"name": name, "age": 4, "breed": "Maine Coon"}
+    
+    # Act
+    with allure.step("Создаём первого кота"):
+        resp1 = api.create_cat(payload1)
+    with allure.step("Пытаемся создать второго с тем же именем"):
+        resp2 = api.create_cat(payload2)
+        
+    # Assert
+    with allure.step("Проверяем успешное создание первого кота"):
+        assert resp1.status_code == 201
+    with allure.step("Проверяем ошибку при создании кота с дублирующимся именем"):
+        assert resp2.status_code == 409
+    with allure.step("Проверяем контракт"):
+        openapi_validator.validate_response(resp1)
+        openapi_validator.validate_response(resp2)
 
 
 @pytest.mark.contract
@@ -41,7 +66,6 @@ def test_get_all_cats_contract(api, openapi_validator):
         assert get_resp.status_code == 200
     with allure.step("Проверяем контракт"):
         openapi_validator.validate_response(get_resp)
-
 
 @pytest.mark.contract
 @allure.feature("Contract")
@@ -117,23 +141,6 @@ def test_delete_invalid_ID_contract(api, openapi_validator, ID, expected_status,
        assert delete_resp.status_code == expected_status
     with allure.step("Проверяем контракт"):
         openapi_validator.validate_response(delete_resp)
-        
-# @pytest.mark.contract
-# @allure.feature("Contract")
-# @allure.story("DELETE with invalid ID")
-# def test_delete_invalid_ID_contract(api, openapi_validator):
-#     # Arrange
-#     invalid_id = 9999
-
-#     # Act
-#     with allure.step(f"Удаляем по несуществующему ID"):
-#         delete_resp = api.delete_cat(invalid_id)
-
-#     # Assert
-#     with allure.step("Проверяем HTTP-статус"):
-#        assert delete_resp.status_code == 404
-#     with allure.step("Проверяем контракт"):
-#         openapi_validator.validate_response(delete_resp)
 
 
 INVALID_PAYLOADS = [
