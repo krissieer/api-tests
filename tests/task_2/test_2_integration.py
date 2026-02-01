@@ -144,61 +144,54 @@ def test_user_deletion_sets_cat_owner_to_null(api):
 def test_cat_list_filtering_by_breed_and_adoption_status(api):
     """Фильтрация списка кошек по породе и статусу усыновления"""
     # Arrange
-    breed1 = "Bengal"
-    breed2 = "Sphynx"
+    with allure.step("Создаём 4 кота"):
+        create_1_cat = api.create_cat({"name": generate_unique_cat_name(), "age": 1, "breed": "Bengal"})
+        cat_1 = create_1_cat.json()["id"]
+        create_2_cat = api.create_cat({"name": generate_unique_cat_name(), "age": 2, "breed": "Bengal"})
+        cat_2 = create_2_cat.json()["id"]
+        create_3_cat = api.create_cat({"name": generate_unique_cat_name(), "age": 3, "breed": "Sphynx"})
+        cat_3 = create_3_cat.json()["id"]
+        create_4_cat = api.create_cat({"name": generate_unique_cat_name(), "age": 4, "breed": "Sphynx"})
+        cat_4 = create_4_cat.json()["id"]
 
-    with allure.step("Создаём список из 4 кошек"):
-        cats = []
-        for i, (breed, adopted) in enumerate([(breed1, False), (breed1, True), (breed2, False), (breed2, True)]):
-            name = generate_unique_cat_name()
-            with allure.step("Создаём кота"):
-                create_cat = api.create_cat({"name": name, "age": 2, "breed": breed})
-            cat_id = create_cat.json()["id"]
-            
-            if adopted:
-                payload = generate_unique_user_payload()
-                with allure.step("Создаём временного пользователя"):
-                    create_resp = api.create_user(payload)
-                user_id = create_resp.json()["id"]
-                
-                adopt_payload =  {"userId": user_id}
-                with allure.step("Обновляем данные о владельце кошки"):
-                    patch_resp = api.adopt_cat(cat_id, adopt_payload)
-           
-            with allure.step("Добавляем кота в список"):
-                cats.append(cat_id)
-            
+    with allure.step("Создаём 2ух пользователей"):
+        create_1_user = api.create_user(generate_unique_user_payload())
+        user_1 = create_1_user.json()["id"]
+        create_2_user = api.create_user(generate_unique_user_payload())
+        user_2 = create_2_user.json()["id"]
+
+    adopt_payload_1 = {"userId": user_1}
+    adopt_payload_2 = {"userId": user_2}
+    
+    with allure.step("Обновляем данные о владельце 2ой кошки"):
+        patch_resp_1 = api.adopt_cat(cat_2, adopt_payload_1)
+    with allure.step("Обновляем данные о владельце 4ой кошки"):
+        patch_resp_2 = api.adopt_cat(cat_4, adopt_payload_2)
+  
     # Act
-    def get_filtered(breed=None, is_adopted=None):
-        params = {}
-        if breed: params["breed"] = breed
-        if is_adopted is not None: params["isAdopted"] = str(is_adopted).lower()
-        get_resp = api.get_all_cats(params)
-        assert get_resp.status_code == 200
-        return get_resp.json()
-
     with allure.step("Фильтр: только Bengal"):
-        bengals = get_filtered(breed="Bengal")
+        bengals = api.get_all_cats({"breed":"Bengal"})
 
     with allure.step("Фильтр: только неусыновлённые"):
-        free_cats = get_filtered(is_adopted=False)
+        free_cats = api.get_all_cats({"isAdopted": "false"})
 
     with allure.step("Фильтр: Bengal + усыновлённые"):
-        adopted_bengals = get_filtered(breed="Bengal", is_adopted=True)
+        adopted_bengals = api.get_all_cats({"breed": "Bengal", "isAdopted": "true"}) 
 
     # Assert
     with allure.step("Проверяем количество Bengal кошек"):
-        assert len(bengals) == 2
-        assert all(c["breed"] == "Bengal" for c in bengals)
+        assert len(bengals.json()) == 2
+        assert all(c["breed"] == "Bengal" for c in bengals.json())
 
     with allure.step("Проверяем количество кошек без владельца"):
-        assert len(free_cats) == 2
-        assert all(not c["isAdopted"] for c in free_cats)
+        assert len(free_cats.json()) == 2
+        assert all(not c["isAdopted"] for c in free_cats.json())
 
     with allure.step("Проверяем количество Bengal кошек с владельцем"):
-        assert len(adopted_bengals) == 1
-        assert adopted_bengals[0]["breed"] == "Bengal"
-        assert adopted_bengals[0]["isAdopted"] is True
+        assert len(adopted_bengals.json()) == 1
+        assert adopted_bengals.json()[0]["breed"] == "Bengal"
+        assert adopted_bengals.json()[0]["isAdopted"] is True
+
 
 @pytest.mark.task2
 @pytest.mark.integration
