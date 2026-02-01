@@ -36,7 +36,7 @@ def test_update_cat_success(api):
         assert cat["breed"] == "TestCat_UpdatedName"
         assert cat["history"] == "Updated history"
 
-
+@pytest.mark.task2
 @pytest.mark.integration
 @allure.feature("Integration")
 @allure.story("PATCH/cats/{id} Name conflict")
@@ -69,7 +69,7 @@ def test_update_cat_name_conflict(api):
         assert cat["age"] == 2
         assert cat["breed"] == "Test"
 
-
+@pytest.mark.task2
 @pytest.mark.integration
 @allure.feature("Integration")
 @allure.story("PATCH/cats/{id}/adopt")
@@ -105,7 +105,7 @@ def test_adopt_cat_success(api):
         assert len(user_resp.json()["cats"]) == 1
         assert user_resp.json()["cats"][0]["id"] == cat_id
 
-
+@pytest.mark.task2
 @pytest.mark.integration
 @allure.feature("Integration")
 @allure.story("DELETE/users/{id}")
@@ -137,7 +137,7 @@ def test_user_deletion_sets_cat_owner_to_null(api):
         assert cat_data["isAdopted"] is True  
         assert cat_data["owner"] is None      
 
-
+@pytest.mark.task2
 @pytest.mark.integration
 @allure.feature("Integration")
 @allure.story("GET/cats Filtering")
@@ -200,8 +200,7 @@ def test_cat_list_filtering_by_breed_and_adoption_status(api):
         assert adopted_bengals[0]["breed"] == "Bengal"
         assert adopted_bengals[0]["isAdopted"] is True
 
-
-@pytest.mark.theonly
+@pytest.mark.task2
 @pytest.mark.integration
 @allure.feature("Integration")
 @allure.story("PATCH/cats/{id}/adopt Multuple cats")
@@ -248,3 +247,44 @@ def test_adopt_cat_success(api):
         assert len(user_resp.json()["cats"]) == 2
         assert user_resp.json()["cats"][0]["id"] == cat_1_id
         assert user_resp.json()["cats"][1]["id"] == cat_2_id
+
+
+@pytest.mark.task2
+@pytest.mark.integration
+@allure.feature("Integration")
+@allure.story("DELETE/cats/{id} delete adopted cat")
+def test_adopt_cat_success(api):
+    """При удалении кошки с владельцем список кошек у пользователя очищается"""
+    # Arrange 
+    with allure.step("Создаём пользователя"):
+        create_user = api.create_user(generate_unique_user_payload())
+    user_id = create_user.json()["id"]
+    adopt_payload = {"userId": user_id}
+    
+    payload_cat = {"name": generate_unique_cat_name(), "age": 3, "breed": "Test"}
+    with allure.step("Создаём  кота"):
+        create_cat = api.create_cat(payload_cat)
+    cat_id = create_cat.json()["id"]
+
+    with allure.step("Обновляем данные кошки о владельце"):
+        patch_resp = api.adopt_cat(cat_id, adopt_payload)
+
+    # Act
+    with allure.step("Фиксируем данные о кошках пользователя"):
+        user_cat_before = api.get_adopted_cats_by_userId(user_id)
+   
+    with allure.step("Удаляем кошку"):
+        delete_user_resp = api.delete_cat(cat_id)
+
+    # Assert
+    with allure.step("Проверяем наличие кошки у пользвоателя до удаления"):
+        assert len(user_cat_before.json()["cats"]) == 1
+        assert user_cat_before.json()["cats"][0]["id"] == cat_id
+
+    with allure.step("Проверяем, что кошка удалилась"):
+        cat_after_delete = api.get_cat_by_id(cat_id)
+        assert cat_after_delete.status_code == 404
+
+    with allure.step("Проверяем наличие кошки у пользвоателя после удаления"):
+        user_cat_after = api.get_adopted_cats_by_userId(user_id)
+        assert len(user_cat_after.json()["cats"]) == 0

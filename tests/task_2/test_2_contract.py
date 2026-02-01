@@ -123,6 +123,45 @@ def test_get_user_invalid_id_format_contract(api, openapi_validator, ID, expecte
         openapi_validator.validate_response(get_resp)
 
 
+@pytest.mark.contract
+@pytest.mark.task2
+@allure.feature("Contract")
+@allure.story("DELETE/users/{id}")
+def test_delete_user_contract(api, openapi_validator):
+    # Arrange
+    payload = generate_unique_user_payload()
+    with allure.step("Создаём нового пользователя"):
+        create_resp = api.create_user(payload)
+    user_id = create_resp.json()["id"]
+
+    # Act
+    with allure.step("Удаляем пользователя"):
+        delete_resp = api.delete_user(user_id)
+
+    # Assert
+    with allure.step("Проверяем HTTP-статус"):
+        assert delete_resp.status_code == 204
+    with allure.step("Проверяем контракт"):
+        openapi_validator.validate_response(delete_resp)
+
+
+@pytest.mark.contract
+@pytest.mark.task2
+@allure.feature("Contract")
+@allure.story("DELETE/users/{id} invalid user's id format")
+@pytest.mark.parametrize("userId, expected_status, description", 
+    [(9999, 404, "nonexistent id"), ("abc", 400, "invalid id format")])
+def test_delete_user_invalid_id_contract(api, openapi_validator, userId, expected_status, description):
+    # Act
+    with allure.step(f"Удаляем пользователя с некорректным ID: {description}"):
+        delete_resp = api.delete_user(userId)
+
+    # Assert
+    with allure.step("Проверяем HTTP-статус"):
+       assert delete_resp.status_code == expected_status
+    with allure.step("Проверяем контракт"):
+        openapi_validator.validate_response(delete_resp)
+
 
 @pytest.mark.contract
 @pytest.mark.task2
@@ -199,6 +238,39 @@ def test_patch_cat_invalid_userid_contract(api, openapi_validator, userId, expec
        assert patch_resp.status_code == expected_status
     with allure.step("Проверяем контракт"):
         openapi_validator.validate_response(patch_resp)
+
+
+@pytest.mark.contract
+@pytest.mark.task2
+@allure.feature("Contract")
+@allure.story("PATCH/cats/{id}/adopt already adopted cat")
+def test_patch_cat_invalid_userid_contract(api, openapi_validator):
+    # Arrange
+    payload_cat = {"name": generate_unique_cat_name(), "age": 2, "breed": "Patch",}
+    with allure.step("Создаём нового кота"):
+        create_cat_resp = api.create_cat(payload_cat)
+    cat_id = create_cat_resp.json()["id"]
+
+    with allure.step("Создаём пользователя"):
+        create_user = api.create_user(generate_unique_user_payload())
+    patch_payload = {"userId": create_user.json()["id"]}
+
+    with allure.step("Обновляем данные кота о владельце"):
+        patch_resp = api.adopt_cat(cat_id, patch_payload)
+
+    with allure.step("Создаём 2го пользователя"):
+        create_user_2 = api.create_user(generate_unique_user_payload())
+    patch_payload_2 = {"userId": create_user_2.json()["id"]}
+
+    # Act
+    with allure.step("Пытаемся обновить данные кота о владельце на 2го пользователя"):
+        faild_adopt_resp = api.adopt_cat(cat_id, patch_payload_2)
+
+    # Assert
+    with allure.step("Проверяем HTTP-статус"):
+       assert faild_adopt_resp.status_code == 400
+    with allure.step("Проверяем контракт"):
+        openapi_validator.validate_response(faild_adopt_resp)
 
 
 
@@ -302,3 +374,57 @@ def test_patch_cat_duplicate_name_contract(api, openapi_validator):
        assert patch_resp.status_code == 409
     with allure.step("Проверяем контракт"):
         openapi_validator.validate_response(patch_resp)
+
+
+@pytest.mark.contract
+@pytest.mark.task2
+@allure.feature("Contract")
+@allure.story("GET/users/{id}/cats")
+def test_get_adopted_cats_by_userId_contract(api, openapi_validator):
+    # Arrange 
+    with allure.step("Создаём пользователя"):
+        create_user = api.create_user(generate_unique_user_payload())
+    user_id = create_user.json()["id"]
+    adopt_payload = {"userId": user_id}
+    
+    payload_cat_1 = {"name": generate_unique_cat_name(), "age": 3, "breed": "Test"}
+    with allure.step("Создаём 1го кота"):
+        create_cat_1 = api.create_cat(payload_cat_1)
+    cat_1_id = create_cat_1.json()["id"]
+
+    payload_cat_2 = {"name": generate_unique_cat_name(), "age": 1, "breed": "Test"}
+    with allure.step("Создаём 2го кота"):
+        create_cat_2 = api.create_cat(payload_cat_2)
+    cat_2_id = create_cat_2.json()["id"]
+
+    with allure.step("Обновляем данные о владельце 1ой кошки"):
+        patch_1_resp = api.adopt_cat(cat_1_id, adopt_payload)
+    with allure.step("Обновляем данные о владельце 2ой кошки"):
+        patch_2_resp = api.adopt_cat(cat_2_id, adopt_payload)
+
+    # Act
+    with allure.step("Получаем данные пользователя с кошками"):
+        user_cats_resp = api.get_adopted_cats_by_userId(user_id)
+
+    # Assert
+    with allure.step("Проверяем HTTP-статус"):
+        assert user_cats_resp.status_code == 200
+    with allure.step("Проверяем контракт"):
+        openapi_validator.validate_response(user_cats_resp)
+
+@pytest.mark.contract
+@pytest.mark.task2
+@allure.feature("Contract")
+@allure.story("GET/users/{id}/cats")
+@pytest.mark.parametrize("userId, expected_status, description", 
+    [(9999, 404, "nonexistent id"), ("abc", 400, "invalid id format")])
+def test_get_adopted_cats_by_invalid_userId_contract(api, openapi_validator, userId, expected_status, description):
+    # Act
+    with allure.step(f"Получаем данные пользователя с некорректным ID: {description}"):
+        user_cats_resp = api.get_adopted_cats_by_userId(userId)
+
+    # Assert
+    with allure.step("Проверяем HTTP-статус"):
+        assert user_cats_resp.status_code == expected_status
+    with allure.step("Проверяем контракт"):
+        openapi_validator.validate_response(user_cats_resp)
