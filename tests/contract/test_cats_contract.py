@@ -1,16 +1,19 @@
 import pytest
 import allure
 from utils.helpers import generate_unique_cat_name
+import logging
+logger = logging.getLogger(__name__)
 
 
 @pytest.mark.contract
 @allure.feature("Contract")
 @allure.story("POST/cats")
 def test_create_cat_contract(api, openapi_validator):
+    logger.info("Создание кота")
     # Arrange
     name = generate_unique_cat_name()
     payload = {"name": name, "age": 3, "breed": "POST",}
-
+    
     # Act
     with allure.step("Создаём нового кота"):
         create_resp = api.create_cat(payload)
@@ -21,11 +24,12 @@ def test_create_cat_contract(api, openapi_validator):
     with allure.step("Проверяем контракт"):
         openapi_validator.validate_response(create_resp)
 
-@pytest.mark.functional
+
+@pytest.mark.contract
 @allure.feature("Contract")
 @allure.story("POST/cats")
 def test_create_cat_duplicate_name(api, openapi_validator):
-    """Негативный тест: попытка создать кота с дублирующимся именем"""
+    logger.info("Негативный тест: попытка создать кота с дублирующимся именем")
     # Arrange
     name = generate_unique_cat_name()
     payload1 = {"name": name, "age": 2, "breed": "Persian"}
@@ -46,11 +50,38 @@ def test_create_cat_duplicate_name(api, openapi_validator):
         openapi_validator.validate_response(resp1)
         openapi_validator.validate_response(resp2)
 
+INVALID_PAYLOADS = [
+    ({"age": 3, "breed": "B"}, "missing 'name'"),
+    ({"name": "TestCat_", "breed": "B"}, "missing 'age'"),
+    ({"name": "TestCat_", "age": 3}, "missing 'breed'"),
+    ({"name": "TestCat_", "age": "old", "breed": "B"}, "invalid type of 'age'"),
+    ({"name": 5, "age": 5, "breed": 5}, "invalid type of 'name' and 'breed'"),
+    ({}, "empty payload")]
+@pytest.mark.contract
+@allure.feature("Contract")
+@allure.story("POST/cats invalid payload")
+@pytest.mark.parametrize("payload, description", INVALID_PAYLOADS)
+def test_create_cat_invalid_contract(api, openapi_validator, payload, description):
+    logger.info("Создание кота по с невалидными данными")
+    
+    # Act
+    with allure.step(f"Отправляем POST с недопустимым payload: {description}"):
+        resp = api.create_cat(payload)
+        allure.attach(str(payload), name="Invalid Payload", attachment_type=allure.attachment_type.JSON)
+
+    # Assert
+    with allure.step("Проверяем HTTP-статус"):
+        assert resp.status_code == 400
+    with allure.step("Проверяем контракт"):
+        openapi_validator.validate_response(resp)
+
 
 @pytest.mark.contract
 @allure.feature("Contract")
 @allure.story("GET/cats")
 def test_get_all_cats_contract(api, openapi_validator):
+    logger.info("Получение списка всех котов")
+
     # Arrange
     name = generate_unique_cat_name()
     payload = {"name": name, "age": 10, "breed": "GET",}
@@ -71,6 +102,8 @@ def test_get_all_cats_contract(api, openapi_validator):
 @allure.feature("Contract")
 @allure.story("GET/cats/{id}")
 def test_get_cat_by_id_contract(api, openapi_validator):
+    logger.info("Получение кота по его Id")
+
     # Arrange
     name = generate_unique_cat_name()
     payload = {"name": name, "age": 5, "breed": "GET_ID",}
@@ -91,9 +124,11 @@ def test_get_cat_by_id_contract(api, openapi_validator):
 
 @pytest.mark.contract
 @allure.feature("Contract")
-@allure.story("GET with invalid ID")
+@allure.story("GET/cats/{id} invalid ID")
 @pytest.mark.parametrize("ID, expected_status, description", [(9999, 404, "nonexistent id"), ("abc", 400, "invalid id format")])
 def test_get_by_invalid_ID_contract(api, openapi_validator, ID, expected_status, description):
+    logger.info("Получение кота по невалидному Id")
+
     # Act
     with allure.step(f"Запрашиваем по некорректному ID: {description}"):
         get_resp = api.get_cat_by_id(ID)
@@ -109,6 +144,8 @@ def test_get_by_invalid_ID_contract(api, openapi_validator, ID, expected_status,
 @allure.feature("Contract")
 @allure.story("DELETE/cats/{id}")
 def test_get_cat_by_id_contract(api, openapi_validator):
+    logger.info("Удаление кота")
+    
     # Arrange
     name = generate_unique_cat_name()
     payload = {"name": name, "age": 7, "breed": "DELETE",}
@@ -129,9 +166,11 @@ def test_get_cat_by_id_contract(api, openapi_validator):
 
 @pytest.mark.contract
 @allure.feature("Contract")
-@allure.story("DELETE with invalid ID")
+@allure.story("DELETE/cats/{id} invalid ID")
 @pytest.mark.parametrize("ID, expected_status, description", [(9999, 404, "nonexistent id"), ("abc", 400, "invalid id format")])
 def test_delete_invalid_ID_contract(api, openapi_validator, ID, expected_status, description):
+    logger.info("Удаление кота по невалидному Id")
+
     # Act
     with allure.step(f"Удаляем по некорректному ID: {description}"):
         delete_resp = api.delete_cat(ID)
@@ -143,36 +182,13 @@ def test_delete_invalid_ID_contract(api, openapi_validator, ID, expected_status,
         openapi_validator.validate_response(delete_resp)
 
 
-INVALID_PAYLOADS = [
-    ({"age": 3, "breed": "B"}, "missing 'name'"),
-    ({"name": "TestCat_", "breed": "B"}, "missing 'age'"),
-    ({"name": "TestCat_", "age": 3}, "missing 'breed'"),
-    ({"name": "TestCat_", "age": "old", "breed": "B"}, "invalid type of 'age'"),
-    ({"name": 5, "age": 5, "breed": 5}, "invalid type of 'name' and 'breed'"),
-    ({}, "empty payload")]
-@pytest.mark.contract
-@allure.feature("Contract")
-@allure.story("POST/cats invalid payload")
-@pytest.mark.parametrize("payload, description", INVALID_PAYLOADS)
-def test_create_cat_invalid_contract(api, openapi_validator, payload, description):
-    # Act
-    with allure.step(f"Отправляем POST с недопустимым payload: {description}"):
-        resp = api.create_cat(payload)
-        allure.attach(str(payload), name="Invalid Payload", attachment_type=allure.attachment_type.JSON)
-
-    # Assert
-    with allure.step("Проверяем HTTP-статус"):
-        assert resp.status_code == 400
-    with allure.step("Проверяем контракт"):
-        openapi_validator.validate_response(resp)
-
-
-
 @pytest.mark.contract
 @allure.feature("Contract")
 @allure.story("Boundary: name length")
 @pytest.mark.parametrize("name", ["", "A", " "])
 def test_create_cat_name_too_short(api, openapi_validator, name):
+    logger.info("Граничное тестирование длины имени кота")
+    
     # Arrange
     payload = {"name": name, "age": 2, "breed": "Boundary", }
 
@@ -192,6 +208,8 @@ def test_create_cat_name_too_short(api, openapi_validator, name):
 @allure.story("Boundary: age values")
 @pytest.mark.parametrize("age, expected_status", [(-1, 400), (0, 201), (1, 201)])
 def test_create_cat_age_boundary(api, openapi_validator, age, expected_status):
+    logger.info("Граничное тестирование возраста кота")
+    
     # Arrange 
     payload = {"name": generate_unique_cat_name(), "age": age, "breed": "Boundary"}
     

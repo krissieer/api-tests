@@ -1,6 +1,5 @@
 import requests
 import pytest
-import schemathesis
 from utils.helpers import cleanup_test_cats
 from utils.api_client import ShelterClient
 from tests.contract.openapi_validator import OpenAPIValidator

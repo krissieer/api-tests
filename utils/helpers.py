@@ -1,5 +1,4 @@
 import uuid
-import requests
 
 def generate_unique_cat_name(prefix="TestCat"):
     return f"{prefix}_{uuid.uuid4().hex[:8]}"
