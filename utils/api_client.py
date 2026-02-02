@@ -5,6 +5,7 @@ class ShelterClient:
         self.base_url = base_url
         self.cats_url = f"{base_url}/cats"
         self.users_url = f"{base_url}/users"
+        self.stats_url = f"{base_url}/stats"
 
     # Методы для кошек
     # Задание №1
@@ -42,3 +43,13 @@ class ShelterClient:
 
     def delete_user(self, user_id):
         return requests.delete(f"{self.users_url}/{user_id}")
+
+    # Задание №3
+    def get_summary_stats(self):
+        return requests.get(f"{self.stats_url}/summary")
+
+    def get_stats_by_breed(self):
+        return requests.get(f"{self.stats_url}/breeds")
+
+    def get_adopters_stats(self):
+        return requests.get(f"{self.stats_url}/top-adopters")

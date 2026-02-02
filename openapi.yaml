@@ -33,7 +33,7 @@
         ]
       },
       "get": {
-        "description": "Returns a list of all cats. Supports filtering by breed and adoption status.",
+        "description": "Returns a list of all cats. Supports filtering by breed, adoption status and age (kittens).",
         "operationId": "CatsController_findAll",
         "parameters": [
           {
@@ -52,6 +52,15 @@
             "description": "Filter by adoption status (true/false)",
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "isKitten",
+            "required": false,
+            "in": "query",
+            "description": "Filter only cats younger than 1 year",
+            "schema": {
+              "type": "boolean"
             }
           }
         ],
@@ -358,6 +367,52 @@
         "summary": "Get all cats adopted by a specific user",
         "tags": [
           "Users Management"
+        ]
+      }
+    },
+    "/stats/summary": {
+      "get": {
+        "operationId": "StatsController_getSummary",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Total counts and adoption percentage"
+          }
+        },
+        "summary": "Get general shelter metrics",
+        "tags": [
+          "Statistics"
+        ]
+      }
+    },
+    "/stats/breeds": {
+      "get": {
+        "operationId": "StatsController_getBreedStats",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "List of breeds with counts"
+          }
+        },
+        "summary": "Distribution of cats by breeds",
+        "tags": [
+          "Statistics"
+        ]
+      }
+    },
+    "/stats/top-adopters": {
+      "get": {
+        "description": "Returns top 5 users who have adopted the most cats",
+        "operationId": "StatsController_getTopAdopters",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "List of top adopters"
+          }
+        },
+        "summary": "Get most active adopters",
+        "tags": [
+          "Statistics"
         ]
       }
     }
