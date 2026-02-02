@@ -33,9 +33,8 @@ def test_stats_summary_counts_and_rate(api):
     with allure.step("Проверяем количество усыновленных котов"):
         assert stat_resp.json()["adoptedCount"] == 2
     with allure.step("Проверяем процент усыновленных котов"):
-        rate_raw = stat_resp.json()["adoptionRate"]  
-        rate = float(rate_raw.replace("%", ""))
-        assert rate == pytest.approx(66.67, rel=0.1)
+        assert stat_resp.json()["adoptionRate"]  == pytest.approx(66.67, rel=0.1)
+
     
 @pytest.mark.task3
 @pytest.mark.integration
@@ -59,8 +58,8 @@ def test_stats_breeds_grouping(api):
         assert stat_resp.status_code == 200
     with allure.step("Проверяем количество котов каждой породы"):
         breeds_map = {b["breed"]: b["count"] for b in breeds}
-        assert breeds_map["Test_breed_1"] == "2"
-        assert breeds_map["Test_breed_2"] == "1"
+        assert breeds_map["Test_breed_1"] == 2
+        assert breeds_map["Test_breed_2"] == 1
 
 @pytest.mark.task3
 @pytest.mark.integration
@@ -96,9 +95,9 @@ def test_stats_top_adopters(api):
     with allure.step("Проверяем данные в ответе"):
         assert len(stat_resp.json()) == 2
         assert stat_resp.json()[0]["id"] == user_1
-        assert stat_resp.json()[0]["count"] == "3"
+        assert stat_resp.json()[0]["count"] == 3
         assert stat_resp.json()[1]["id"] == user_2
-        assert stat_resp.json()[1]["count"] == "1"
+        assert stat_resp.json()[1]["count"] == 1
 
 @pytest.mark.task3
 @pytest.mark.integration
