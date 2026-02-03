@@ -6,6 +6,7 @@ class ShelterClient:
         self.cats_url = f"{base_url}/cats"
         self.users_url = f"{base_url}/users"
         self.stats_url = f"{base_url}/stats"
+        self.auth_url = f"{base_url}/auth"
 
     # Методы для кошек
     # Задание №1
@@ -53,3 +54,10 @@ class ShelterClient:
 
     def get_adopters_stats(self):
         return requests.get(f"{self.stats_url}/top-adopters")
+
+    # Задание №3
+    def register(self, data):
+        return requests.post(f"{self.auth_url}/register", json=data)
+    
+    def login(self, data):
+        return requests.post(f"{self.auth_url}/login", json=data)
