@@ -21,8 +21,8 @@ def test_cat_full_lifecycle(api):
         allure.attach(str(payload), name="Payload", attachment_type=allure.attachment_type.JSON)
 
     # Assert 
-    with allure.step("Проверяем успешное создание кота: 201"):
-        assert create_resp.status_code == 201
+    with allure.step("Проверяем успешное создание кота"):
+        assert create_resp.status_code == 201, f"Ожидалось 201, получено {create_resp.status_code}"
 
     # Act    
     with allure.step("Получаем список всех котов"):
@@ -30,8 +30,8 @@ def test_cat_full_lifecycle(api):
         allure.attach(str(list_resp.json()), name="Cats", attachment_type=allure.attachment_type.JSON)
 
     # Assert
-    with allure.step("Проверяем получение списка: 200"):
-        assert list_resp.status_code == 200
+    with allure.step("Проверяем получение списка"):
+        assert list_resp.status_code == 200, f"Ожидалось 200, получено {list_resp.status_code}"
     with allure.step("Проверяем наличие созданного кота в списке"):
         cats = list_resp.json()
         assert any(c["id"] == cat_id for c in cats)
@@ -42,6 +42,6 @@ def test_cat_full_lifecycle(api):
 
     # Assert
     with allure.step("Проверяем удаление кота"):
-        assert delete_resp.status_code == 204
+        assert delete_resp.status_code == 204, f"Ожидалось 204, получено {delete_resp.status_code}"
         get_resp = api.get_cat_by_id(cat_id)
-        assert get_resp.status_code == 404
+        assert get_resp.status_code == 404, f"Ожидалось 404, получено {deletget_respe_resp.status_code}"

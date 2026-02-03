@@ -20,8 +20,8 @@ def test_create_cat_contract(api, openapi_validator):
         allure.attach(str(payload), name="Payload", attachment_type=allure.attachment_type.JSON)
 
     # Assert
-    with allure.step("Проверяем HTTP-статус: 201"):
-        assert create_resp.status_code == 201
+    with allure.step("Проверяем HTTP-статус"):
+        assert create_resp.status_code == 201, f"Ожидалось 201, получено {create_resp.status_code}"
     with allure.step("Проверяем контракт"):
         openapi_validator.validate_response(create_resp)
 
@@ -45,10 +45,10 @@ def test_create_cat_duplicate_name(api, openapi_validator):
         allure.attach(str(payload2), name="Payload", attachment_type=allure.attachment_type.JSON)
         
     # Assert
-    with allure.step("Проверяем HTTP-статус при создании первого кота: 201"):
-        assert resp1.status_code == 201
-    with allure.step("Проверяем ошибку при создании кота с дублирующимся именем: 409"):
-        assert resp2.status_code == 409
+    with allure.step("Проверяем HTTP-статус при создании первого кота"):
+        assert resp1.status_code == 201, f"Ожидалось 201, получено {resp1.status_code}"
+    with allure.step("Проверяем ошибку при создании кота с дублирующимся именем"):
+        assert resp2.status_code == 409, f"Ожидалось 409, получено {resp2.status_code}"
     with allure.step("Проверяем контракт"):
         openapi_validator.validate_response(resp1)
         openapi_validator.validate_response(resp2)
@@ -73,8 +73,8 @@ def test_create_cat_invalid_contract(api, openapi_validator, payload, descriptio
         allure.attach(str(payload), name="Invalid Payload", attachment_type=allure.attachment_type.JSON)
 
     # Assert
-    with allure.step("Проверяем HTTP-статус: 400"):
-        assert resp.status_code == 400
+    with allure.step("Проверяем HTTP-статус"):
+        assert resp.status_code == 400, f"Ожидалось 400, получено {resp.status_code}"
     with allure.step("Проверяем контракт"):
         openapi_validator.validate_response(resp)
 
@@ -98,8 +98,8 @@ def test_get_all_cats_contract(api, openapi_validator):
         allure.attach(str(get_resp.json()), name="All cats", attachment_type=allure.attachment_type.JSON)
 
     # Assert
-    with allure.step("Проверяем HTTP-статус: 200"):
-        assert get_resp.status_code == 200
+    with allure.step("Проверяем HTTP-статус"):
+        assert get_resp.status_code == 200, f"Ожидалось 200, получено {get_resp.status_code}"
     with allure.step("Проверяем контракт"):
         openapi_validator.validate_response(get_resp)
 
@@ -124,8 +124,8 @@ def test_get_cat_by_id_contract(api, openapi_validator):
         allure.attach(str(get_resp.json()), name="Cat", attachment_type=allure.attachment_type.JSON)
 
     # Assert
-    with allure.step("Проверяем HTTP-статус: 200"):
-        assert get_resp.status_code == 200
+    with allure.step("Проверяем HTTP-статус"):
+        assert get_resp.status_code == 200, f"Ожидалось 200, получено {get_resp.status_code}"
     with allure.step("Проверяем контракт"):
         openapi_validator.validate_response(get_resp)
 
@@ -143,8 +143,8 @@ def test_get_by_invalid_ID_contract(api, openapi_validator, ID, expected_status,
         get_resp = api.get_cat_by_id(ID)
 
     # Assert
-    with allure.step(f"Проверяем HTTP-статус: {expected_status}"):
-       assert get_resp.status_code == expected_status
+    with allure.step(f"Проверяем HTTP-статус"):
+       assert get_resp.status_code == expected_status, f"Ожидалось {expected_status}, получено {get_resp.status_code}"
     with allure.step("Проверяем контракт"):
         openapi_validator.validate_response(get_resp)
 
@@ -168,8 +168,8 @@ def test_get_cat_by_id_contract(api, openapi_validator):
         delete_resp = api.delete_cat(cat_id)
 
     # Assert
-    with allure.step("Проверяем HTTP-статус: 204"):
-        assert delete_resp.status_code == 204
+    with allure.step("Проверяем HTTP-статус"):
+        assert delete_resp.status_code == 204, f"Ожидалось 204, получено {delete_resp.status_code}"
     with allure.step("Проверяем контракт"):
         openapi_validator.validate_response(delete_resp)
 
@@ -187,8 +187,8 @@ def test_delete_invalid_ID_contract(api, openapi_validator, ID, expected_status,
         delete_resp = api.delete_cat(ID)
 
     # Assert
-    with allure.step(f"Проверяем HTTP-статус: {expected_status}"):
-       assert delete_resp.status_code == expected_status
+    with allure.step(f"Проверяем HTTP-статус"):
+       assert delete_resp.status_code == expected_status, f"Ожидалось {expected_status}, получено {delete_resp.status_code}"
     with allure.step("Проверяем контракт"):
         openapi_validator.validate_response(delete_resp)
 
@@ -208,8 +208,8 @@ def test_create_cat_name_too_short(api, openapi_validator, name):
         response = api.create_cat(payload)
 
     # Assert
-    with allure.step("Проверяем HTTP-статус: 400"):
-        assert response.status_code == 400
+    with allure.step("Проверяем HTTP-статус"):
+        assert response.status_code == 400, f"Ожидалось 400, получено {response.status_code}"
     with allure.step("Проверяем контракт"):
         openapi_validator.validate_response(response)
     
@@ -229,7 +229,7 @@ def test_create_cat_age_boundary(api, openapi_validator, age, expected_status):
         resp = api.create_cat(payload)
 
     # Assert
-    with allure.step(f"Проверяем HTTP-статус: {expected_status}"):
-        assert resp.status_code == expected_status
+    with allure.step(f"Проверяем HTTP-статус"):
+        assert resp.status_code == expected_status, f"Ожидалось {expected_status}, получено {resp.status_code}"
     with allure.step("Проверяем контракт"):
         openapi_validator.validate_response(resp)

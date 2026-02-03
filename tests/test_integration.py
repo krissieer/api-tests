@@ -67,10 +67,10 @@ def test_cat_create_get_delete(api):
 
     # Assert
     with allure.step("Проверяем, что кот после добавления доступен по ID: 200"):
-        assert get_resp.status_code == 200
+        assert get_resp.status_code == 200, f"Ожидалось 200, получено {get_resp.status_code}"
     with allure.step("Проверяем, что кот исчез"):
         get_deleted = api.get_cat_by_id(cat_id)
-        assert get_deleted.status_code == 404
+        assert get_deleted.status_code == 404, f"Ожидалось 404, получено {get_deleted.status_code}"
 
 @pytest.mark.integration
 @allure.feature("Integration")
@@ -97,7 +97,7 @@ def test_invalid_cat_not_saved(api):
     with allure.step("Сравниваем количество до и после попытки добавления"):
         initial_count = len(initial_resp.json())
         after_count = len(after_resp.json())
-        assert after_count == initial_count
+        assert after_count == initial_count, f"Ожидалось {initial_count}, получено {after_count}"
 
 
 @pytest.mark.integration
