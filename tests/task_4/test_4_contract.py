@@ -119,6 +119,137 @@ def test_create_cat_namesboundary_contract(api, openapi_validator, payload, desc
         openapi_validator.validate_response(resp)
 
 
+INVALID_PAYLOADS = [
+    ({"firstName": "TestUser_firstName", "login": "login", "password": "password"},  "missing 'lastName'"),
+    ({"lastName": "TestUser_lastName", "login": "login", "password": "password"},  "missing 'firstName'"),
+    ({"firstName": "TestUser_firstName", "lastName": "TestUser_lastName", "password": "password"},  "missing 'login'"),
+    ({"firstName": "TestUser_firstName", "lastName": "TestUser_lastName", "login": "login",},  "missing 'password'"),
+    ({"firstName": 123, "lastName": 123, "login": 123, "password": 123},  "invalid type of fields"),
+    ({}, "empty payload")]
+@pytest.mark.task4
+@pytest.mark.contract
+@allure.feature("Contract")
+@allure.story("POST/auth/register invalid payload")
+@pytest.mark.parametrize("payload, description", INVALID_PAYLOADS)
+def test_register_contract_validation_error(api, openapi_validator, payload, description):
+    logger.info("[REGISTER][NEGATIVE] invalid payload")
+    
+    # Act
+    with allure.step(f"Попытка зарегистрироваться с данными: {description}"):
+        resp = api.register(payload)
+        allure.attach(str(payload), name="Invalid login data", attachment_type=allure.attachment_type.JSON)
+
+    # Assert
+    with allure.step("Проверяем HTTP-статус"):
+        assert resp.status_code == 400, f"Ожидалось 400, получено {resp.status_code}"
+    with allure.step("Проверяем контракт"):
+        openapi_validator.validate_response(resp)
 
 
 
+@pytest.mark.task4
+@pytest.mark.contract
+@allure.feature("Contract")
+@allure.story("POST/auth/login success")
+def test_login_contract_success(api, openapi_validator):
+    logger.info("[LOGIN][POSITIVE] valid payload")
+    
+    # Arrange
+    payload = {
+        "firstName": "TestUser_firstName",
+        "lastName": "TestUser_lasttName",
+        "login": "TestUser_login",
+        "password": "TestUser_password"
+    }
+
+    with allure.step("Регистрация"):
+        api.register(payload)
+        allure.attach(str(payload), name="User's data", attachment_type=allure.attachment_type.JSON)
+
+    # Act
+    with allure.step("Авторизация"):
+        resp = api.login({"login": payload["login"], "password": payload["password"]})
+
+    # Assert
+    with allure.step("Проверяем HTTP-статус"):
+        assert resp.status_code == 200, f"Ожидалось 200, получено {resp.status_code}"
+    with allure.step("Проверяем контракт"):
+        openapi_validator.validate_response(resp)
+
+
+@pytest.mark.task4
+@pytest.mark.contract
+@allure.feature("Contract")
+@allure.story("POST/auth/login wrong credentials")
+def test_wrong_login_contract(api, openapi_validator):
+    logger.info("[LOGIN][POSITIVE] wrong credentials")
+    
+    # Arrange
+    payload = {
+        "firstName": "TestUser_firstName",
+        "lastName": "TestUser_lasttName",
+        "login": "TestUser_login",
+        "password": "TestUser_password"
+    }
+
+    with allure.step("Регистрация"):
+        api.register(payload)
+        allure.attach(str(payload), name="User's data", attachment_type=allure.attachment_type.JSON)
+
+    # Act
+    with allure.step("Авторизация"):
+        resp = api.login({"login": payload["login"], "password": "wrong_password"})
+
+    # Assert
+    with allure.step("Проверяем HTTP-статус"):
+        assert resp.status_code == 401, f"Ожидалось 401, получено {resp.status_code}"
+    with allure.step("Проверяем контракт"):
+        openapi_validator.validate_response(resp)
+
+
+INVALID_PAYLOADS = [
+    ({"password": "password"},  "missing 'login'"),
+    ({"login": "login",},  "missing 'password'"),
+    ({"login": 123, "password": 123},  "invalid type of fields"),
+    ({}, "empty payload")]
+@pytest.mark.task4
+@pytest.mark.contract
+@allure.feature("Contract")
+@allure.story("POST/auth/login invalid payload")
+@pytest.mark.parametrize("payload, description", INVALID_PAYLOADS)
+def test_login_validation_error_contract(api, openapi_validator, payload, description):
+    logger.info("[LOGIN][NEGATIVE] invalid payload")
+    
+    # Act
+    with allure.step(f"Попытка авторизоваться с данными: {description}"):
+        resp = api.login(payload)
+        allure.attach(str(payload), name="Invalid login data", attachment_type=allure.attachment_type.JSON)
+
+    # Assert
+    with allure.step("Проверяем HTTP-статус"):
+        assert resp.status_code == 400, f"Ожидалось 400, получено {resp.status_code}"
+    with allure.step("Проверяем контракт"):
+        openapi_validator.validate_response(resp)
+
+
+
+@pytest.mark.task4
+@pytest.mark.contract
+@allure.feature("Contract")
+@allure.story("Protected endpoint without token")
+def test_create_cat_unauthorized_contract(api, openapi_validator):
+    logger.info("[CREATE CAT][NEGATIVE] Unauthorized")
+    
+    # Arrange
+    cat_payload = {"name": generate_unique_cat_name(), "age": 2, "breed": "Test"}
+    
+    # Act
+    with allure.step(f"Попвтка создания кота"):
+        resp = api.create_cat(cat_payload)
+        allure.attach(str(cat_payload), name="Cat", attachment_type=allure.attachment_type.JSON)
+
+    # Assert
+    with allure.step("Проверяем HTTP-статус"):
+        assert resp.status_code == 401, f"Ожидалось 401, получено {resp.status_code}"
+    with allure.step("Проверяем контракт"):
+        openapi_validator.validate_response(resp)
