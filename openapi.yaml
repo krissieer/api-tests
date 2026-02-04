@@ -103,8 +103,8 @@
         "operationId": "UsersController_findAll",
         "parameters": [],
         "responses": {
-          "200": {
-            "description": ""
+          "401": {
+            "description": "Not authorized: No token provided or token invalid."
           }
         },
         "security": [

@@ -359,21 +359,21 @@ def test_create_user_unauthorized_contract(api, openapi_validator):
         openapi_validator.validate_response(create_resp)
 
 
-# @pytest.mark.contract
-# @allure.feature("Contract")
-# @allure.story("Protected endpoint without token")
-# def test_get_users_unauthorized_contract(api, openapi_validator):
-#     logger.info("[GET USERS][NEGATIVE] Unauthorized")
+@pytest.mark.contract
+@allure.feature("Contract")
+@allure.story("Protected endpoint without token")
+def test_get_users_unauthorized_contract(api, openapi_validator):
+    logger.info("[GET USERS][NEGATIVE] Unauthorized")
     
-#     # Act
-#     with allure.step("Попытка получения всех пользователей"):
-#         get_resp = api.get_all_users()
+    # Act
+    with allure.step("Попытка получения всех пользователей"):
+        get_resp = api.get_all_users()
 
-#     # Assert
-#     with allure.step("Проверяем HTTP-статус"):
-#         assert get_resp.status_code == 401, f"Ожидалось 401, получено {get_resp.status_code}"
-#     with allure.step("Проверяем контракт"):
-#         openapi_validator.validate_response(get_resp)
+    # Assert
+    with allure.step("Проверяем HTTP-статус"):
+        assert get_resp.status_code == 401, f"Ожидалось 401, получено {get_resp.status_code}"
+    with allure.step("Проверяем контракт"):
+        openapi_validator.validate_response(get_resp)
 
 
 @pytest.mark.contract
