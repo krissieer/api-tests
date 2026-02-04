@@ -10,8 +10,67 @@ class ShelterClient:
 
     # Методы для кошек
     # Задание №1
-    def create_cat(self, data):
-        return requests.post(self.cats_url, json=data)
+    # def create_cat(self, data):
+    #     return requests.post(self.cats_url, json=data)
+
+    # def get_all_cats(self, params=None):
+    #     return requests.get(self.cats_url, params=params)
+
+    # def get_cat_by_id(self, cat_id):
+    #     return requests.get(f"{self.cats_url}/{cat_id}")
+
+    # def delete_cat(self, cat_id):
+    #     return requests.delete(f"{self.cats_url}/{cat_id}")
+
+    # Задание №2
+    # def patch_cat(self, cat_id, data):
+    #     return requests.patch(f"{self.cats_url}/{cat_id}", json=data)
+
+    # def adopt_cat(self, cat_id, data):
+    #     return requests.patch(f"{self.cats_url}/{cat_id}/adopt", json=data)
+
+    # Методы для пользователей
+    # def create_user(self, data):
+    #     return requests.post(self.users_url, json=data)
+
+    # def get_all_users(self, params=None):
+    #     return requests.get(self.users_url, params=params)
+
+    # def get_user_by_id(self, user_id):
+    #     return requests.get(f"{self.users_url}/{user_id}")
+    
+    # def get_adopted_cats_by_userId(self, user_id):
+    #     return requests.get(f"{self.users_url}/{user_id}/cats")
+
+    # def delete_user(self, user_id):
+    #     return requests.delete(f"{self.users_url}/{user_id}")
+
+    # Задание №3
+    # def get_summary_stats(self):
+    #     return requests.get(f"{self.stats_url}/summary")
+
+    # def get_stats_by_breed(self):
+    #     return requests.get(f"{self.stats_url}/breeds")
+
+    # def get_adopters_stats(self):
+    #     return requests.get(f"{self.stats_url}/top-adopters")
+
+    # Задание №4
+
+    def _headers(self, token=None):
+        headers = {"Content-Type": "application/json"}
+        if token:
+            headers["Authorization"] = f"Bearer {token}"
+        return headers
+
+    def register(self, data):
+        return requests.post(f"{self.auth_url}/register", json=data)
+    
+    def login(self, data):
+        return requests.post(f"{self.auth_url}/login", json=data)
+
+    def create_cat(self, data, token=None):
+        return requests.post(self.cats_url, json=data, headers=self._headers(token))
 
     def get_all_cats(self, params=None):
         return requests.get(self.cats_url, params=params)
@@ -19,45 +78,38 @@ class ShelterClient:
     def get_cat_by_id(self, cat_id):
         return requests.get(f"{self.cats_url}/{cat_id}")
 
-    def delete_cat(self, cat_id):
-        return requests.delete(f"{self.cats_url}/{cat_id}")
+    def delete_cat(self, cat_id, token=None):
+        return requests.delete(f"{self.cats_url}/{cat_id}", headers=self._headers(token))
 
     # Задание №2
-    def patch_cat(self, cat_id, data):
-        return requests.patch(f"{self.cats_url}/{cat_id}", json=data)
+    def patch_cat(self, cat_id, data, token=None):
+        return requests.patch(f"{self.cats_url}/{cat_id}", json=data, headers=self._headers(token))
 
-    def adopt_cat(self, cat_id, data):
-        return requests.patch(f"{self.cats_url}/{cat_id}/adopt", json=data)
+    def adopt_cat(self, cat_id, data, token=None):
+        return requests.patch(f"{self.cats_url}/{cat_id}/adopt", json=data, headers=self._headers(token))
 
     # Методы для пользователей
-    def create_user(self, data):
-        return requests.post(self.users_url, json=data)
+    def create_user(self, data, token=None):
+        return requests.post(self.users_url, json=data, headers=self._headers(token))
 
-    def get_all_users(self, params=None):
-        return requests.get(self.users_url, params=params)
+    def get_all_users(self, params=None, token=None):
+        return requests.get(self.users_url, params=params, headers=self._headers(token))
 
-    def get_user_by_id(self, user_id):
-        return requests.get(f"{self.users_url}/{user_id}")
+    def get_user_by_id(self, user_id, token=None):
+        return requests.get(f"{self.users_url}/{user_id}", headers=self._headers(token))
     
-    def get_adopted_cats_by_userId(self, user_id):
-        return requests.get(f"{self.users_url}/{user_id}/cats")
+    def get_adopted_cats_by_userId(self, user_id, token=None):
+        return requests.get(f"{self.users_url}/{user_id}/cats", headers=self._headers(token))
 
-    def delete_user(self, user_id):
-        return requests.delete(f"{self.users_url}/{user_id}")
+    def delete_user(self, user_id, token=None):
+        return requests.delete(f"{self.users_url}/{user_id}", headers=self._headers(token))
 
     # Задание №3
-    def get_summary_stats(self):
-        return requests.get(f"{self.stats_url}/summary")
+    def get_summary_stats(self, token=None):
+        return requests.get(f"{self.stats_url}/summary", headers=self._headers(token))
 
-    def get_stats_by_breed(self):
-        return requests.get(f"{self.stats_url}/breeds")
+    def get_stats_by_breed(self, token=None):
+        return requests.get(f"{self.stats_url}/breeds", headers=self._headers(token))
 
-    def get_adopters_stats(self):
-        return requests.get(f"{self.stats_url}/top-adopters")
-
-    # Задание №3
-    def register(self, data):
-        return requests.post(f"{self.auth_url}/register", json=data)
-    
-    def login(self, data):
-        return requests.post(f"{self.auth_url}/login", json=data)
+    def get_adopters_stats(self, token=None):
+        return requests.get(f"{self.stats_url}/top-adopters", headers=self._headers(token))
