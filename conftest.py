@@ -1,5 +1,6 @@
 import requests
 import pytest
+import logging
 from utils.helpers import cleanup_test_cats, cleanup_test_users
 from utils.api_client import ShelterClient
 from utils.openapi_validator import OpenAPIValidator
@@ -20,3 +21,15 @@ def api():
 @pytest.fixture(scope="session")
 def openapi_validator():
     return OpenAPIValidator("openapi.yaml")
+
+@pytest.fixture(scope="session", autouse=True)
+def configure_logging():
+    logger = logging.getLogger()
+    logger.setLevel(logging.DEBUG)
+
+    formatter = logging.Formatter(
+        "[%(levelname)s] [%(name)s] %(message)s"
+    )
+
+    logging.getLogger("urllib3").setLevel(logging.INFO)
+    logging.getLogger("requests").setLevel(logging.INFO)
