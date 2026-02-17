@@ -17,10 +17,8 @@ def clean_test_data(api, auth_token):
 @pytest.fixture
 def auth_token(api):
     payload = {
-        "firstName": "Admin",
-        "lastName": "Admin",
-        "login": "admin",
-        "password": "password123"
+        "login": "superadmin",
+        "password": "123456"
     }
     resp = api.login(payload)
     assert resp.status_code == 200

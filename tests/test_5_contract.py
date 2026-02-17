@@ -5,69 +5,67 @@ import utils.openapi_validator
 import logging
 logger = logging.getLogger(__name__)
 
-# не сходится контракт: 200 == 201
-# @pytest.mark.contract
-# @allure.feature("Contract")
-# @allure.story("POST/users/{id}/make-admin")
-# def test_make_admin_success(api, auth_token, openapi_validator):
-#     logger.info("[POST][POSITIVE] making user admin")
+@pytest.mark.contract
+@allure.feature("Contract")
+@allure.story("POST/users/{id}/make-admin")
+def test_make_admin_success(api, auth_token, openapi_validator):
+    logger.info("[POST][POSITIVE] making user admin")
     
-#     # Arrange
-#     payload = generate_unique_login()
-#     with allure.step("Регистрация нового пользователя"):
-#         logger.info(f"Регистрация нового пользователя: {payload}")
-#         reg_resp = api.register(payload)
-#         allure.attach(str(payload), name="login data", attachment_type=allure.attachment_type.JSON)
-#     userId = get_userId_by_login(api, payload['login'], auth_token)
+    # Arrange
+    payload = generate_unique_login()
+    with allure.step("Регистрация нового пользователя"):
+        logger.info(f"Регистрация нового пользователя: {payload}")
+        reg_resp = api.register(payload)
+        allure.attach(str(payload), name="login data", attachment_type=allure.attachment_type.JSON)
+    userId = get_userId_by_login(api, payload['login'], auth_token)
 
-#     # Act
-#     with allure.step("Даем права администратора от имени админа"):
-#         logger.info("Даем права администратора от имени админа")
-#         resp = api.make_admin(userId, token=auth_token)
+    # Act
+    with allure.step("Даем права администратора от имени админа"):
+        logger.info("Даем права администратора от имени админа")
+        resp = api.make_admin(userId, token=auth_token)
 
-#     # Assert
-#     with allure.step("Проверяем HTTP-статус"):
-#         logger.info(f"HTTP-статус: {resp.status_code}")
-#         assert resp.status_code == 201, f"Ожидалось 201, получено {resp.status_code}"
+    # Assert
+    with allure.step("Проверяем HTTP-статус"):
+        logger.info(f"HTTP-статус: {resp.status_code}")
+        assert resp.status_code == 201, f"Ожидалось 201, получено {resp.status_code}"
     
-#     with allure.step("Проверяем контракт"):
-#         logger.info("Проверка контракта")
-#         openapi_validator.validate_response(resp)
+    with allure.step("Проверяем контракт"):
+        logger.info("Проверка контракта")
+        openapi_validator.validate_response(resp)
 
 
-# назначать админом может любой авторизованный пользователь
-# @pytest.mark.contract
-# @allure.feature("Contract")
-# @allure.story("POST/users/{id}/make-admin forbidden")
-# def test_make_admin_forbidden(api, auth_token, openapi_validator):
-#     logger.info("[POST][NEGATIVE] Access denied")
+@pytest.mark.contract
+@allure.feature("Contract")
+@allure.story("POST/users/{id}/make-admin forbidden")
+def test_make_admin_forbidden(api, auth_token, openapi_validator):
+    logger.info("[POST][NEGATIVE] Access denied")
 
-#     # Arrange
-#     payload_1 = generate_unique_login()
-#     payload_2 = generate_unique_login()
-#     with allure.step("Регистрация 2ух пользователей"):
-#         logger.info(f"Регистрация 1го пользователя: {payload_1}")
-#         reg_resp_1 = api.register(payload_1)
-#         allure.attach(str(payload_1), name="User 1", attachment_type=allure.attachment_type.JSON)
-#         logger.info(f"Регистрация 2го пользователя: {payload_2}")
-#         reg_resp_2 = api.register(payload_2)
-#         allure.attach(str(payload_2), name="User 2", attachment_type=allure.attachment_type.JSON)
+    # Arrange
+    payload_1 = generate_unique_login()
+    payload_2 = generate_unique_login()
+    with allure.step("Регистрация 2ух пользователей"):
+        logger.info(f"Регистрация 1го пользователя: {payload_1}")
+        reg_resp_1 = api.register(payload_1)
+        allure.attach(str(payload_1), name="User 1", attachment_type=allure.attachment_type.JSON)
+        logger.info(f"Регистрация 2го пользователя: {payload_2}")
+        reg_resp_2 = api.register(payload_2)
+        allure.attach(str(payload_2), name="User 2", attachment_type=allure.attachment_type.JSON)
 
-#     user_id_1 = get_userId_by_login(payload_1['login'], auth_token)
-#     token = reg_resp_2.json()["access_token"]
+    user_id_1 = get_userId_by_login(api, payload_1['login'], auth_token)
+    token = reg_resp_2.json()["access_token"]
 
-#     # Act
-#     with allure.step("Даем права администратора пользователю №1 от лица пользователя №2(не админ)"):
-#         resp = api.make_admin(user_id_1, token=token)
+    # Act
+    with allure.step("Даем права администратора пользователю №1 от лица пользователя №2(не админ)"):
+        resp = api.make_admin(user_id_1, token=token)
 
-#     # Assert
-#     with allure.step("Проверяем HTTP-статус"):
-#         logger.info(f"HTTP-статус: {resp.status_code}")
-#         assert create_resp.status_code == 403, f"Ожидалось 403, получено {resp.status_code}"
+    # Assert
+    with allure.step("Проверяем HTTP-статус"):
+        logger.info(f"HTTP-статус: {resp.status_code}")
+        assert resp.status_code == 403, f"Ожидалось 403, получено {resp.status_code}"
     
-#     with allure.step("Проверяем контракт"):
-#         logger.info("Проверка контракта")
-#         openapi_validator.validate_response(resp)
+    with allure.step("Проверяем контракт"):
+        logger.info("Проверка контракта")
+        openapi_validator.validate_response(resp)
 
 
 @pytest.mark.contract
@@ -140,33 +138,33 @@ def test_delete_user_by_admin(api, openapi_validator, auth_token):
 
 
 # пользователь не может удалить свою страничку
-# @pytest.mark.contract
-# @allure.feature("Contract")
-# @allure.story("DELETE/users/{id} delete your own page")
-# def test_delete_own_user_page(api, openapi_validator, auth_token):
-#     logger.info("[DELETE USER][POSITIVE] delete your own page")
+@pytest.mark.contract
+@allure.feature("Contract")
+@allure.story("DELETE/users/{id} delete your own page")
+def test_delete_own_user_page(api, openapi_validator, auth_token):
+    logger.info("[DELETE USER][POSITIVE] delete your own page")
     
-#     # Arrange
-#     payload = generate_unique_login()
-#     with allure.step("Регистрация пользователя"):
-#         logger.info(f"Регистрация пользователя: {payload}")
-#         reg_resp = api.register(payload)
-#         allure.attach(str(payload), name="User", attachment_type=allure.attachment_type.JSON)
-#     token = reg_resp.json()["access_token"]
-#     user_id = get_userId_by_login(api, payload["login"], token)
+    # Arrange
+    payload = generate_unique_login()
+    with allure.step("Регистрация пользователя"):
+        logger.info(f"Регистрация пользователя: {payload}")
+        reg_resp = api.register(payload)
+        allure.attach(str(payload), name="User", attachment_type=allure.attachment_type.JSON)
+    token = reg_resp.json()["access_token"]
+    user_id = get_userId_by_login(api, payload["login"], token)
 
-#     # Act
-#     with allure.step("Удаляем пользователя от лица этого же пользователя"):
-#         logger.info("Удаляем пользователя от лица этого же пользователя")
-#         delete_resp = api.delete_user(user_id, token)
+    # Act
+    with allure.step("Удаляем пользователя от лица этого же пользователя"):
+        logger.info("Удаляем пользователя от лица этого же пользователя")
+        delete_resp = api.delete_user(user_id, token)
 
-#     # Assert
-#     with allure.step("Проверяем HTTP-статус"):
-#         logger.info(f"HTTP-статус: {delete_resp.status_code}")
-#         assert delete_resp.status_code == 204, f"Ожидалось 204, получено {delete_resp.status_code}"
-#     with allure.step("Проверяем контракт"):
-#         logger.info("Проверка контракта")
-#         openapi_validator.validate_response(delete_resp)
+    # Assert
+    with allure.step("Проверяем HTTP-статус"):
+        logger.info(f"HTTP-статус: {delete_resp.status_code}")
+        assert delete_resp.status_code == 204, f"Ожидалось 204, получено {delete_resp.status_code}"
+    with allure.step("Проверяем контракт"):
+        logger.info("Проверка контракта")
+        openapi_validator.validate_response(delete_resp)
 
 
 @pytest.mark.contract

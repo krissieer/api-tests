@@ -53,7 +53,7 @@ def cleanup_test_users(api_client, auth_token):
         if response.status_code == 200:
             users = response.json()
             for user in users:
-                if (user['login'] != "admin"):
+                if (user['login'] != "superadmin"):
                     api_client.delete_user(user['id'], token=auth_token)
                     check = api_client.get_user_by_id(user['id'], token=auth_token)
                     if check.status_code == 200:
