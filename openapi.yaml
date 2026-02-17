@@ -64,40 +64,6 @@
       }
     },
     "/users": {
-      "post": {
-        "operationId": "UsersController_create",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateUserDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "User successfully created."
-          },
-          "400": {
-            "description": "Validation failed"
-          },
-          "401": {
-            "description": "Not authorized: No token provided or token invalid."
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Create new user/volunteer",
-        "tags": [
-          "Users Management"
-        ]
-      },
       "get": {
         "description": "Returns a list of all registered users.",
         "operationId": "UsersController_findAll",
