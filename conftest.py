@@ -1,9 +1,22 @@
 import requests
 import pytest
 import logging
-from utils.helpers import cleanup_test_cats
 from utils.api_client import ShelterClient
 from utils.openapi_validator import OpenAPIValidator
+
+def cleanup_test_cats(api_client):
+    """Удаляет всех котов из БД"""
+    try:
+        response = api_client.get_all_cats()
+        if response.status_code == 200:
+            cats = response.json()
+            for cat in cats:
+                api_client.delete_cat(cat['id'])
+                check = api_client.get_cat_by_id(cat['id'])
+                if check.status_code == 200:
+                    print(f" Кот {cat['id']} не удалился!")
+    except Exception as e:
+        print(f"Ошибка очистки: {e}")
 
 @pytest.fixture(autouse=True)
 def clean_test_data(api):
@@ -11,6 +24,7 @@ def clean_test_data(api):
     cleanup_test_cats(api)
     yield
     cleanup_test_cats(api)
+
 
 @pytest.fixture(scope="session")
 def api():
@@ -26,10 +40,6 @@ def openapi_validator():
 def configure_logging():
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)
-
-    formatter = logging.Formatter(
-        "[%(levelname)s] [%(name)s] %(message)s"
-    )
-
+    formatter = logging.Formatter("[%(levelname)s] [%(name)s] %(message)s")
     logging.getLogger("urllib3").setLevel(logging.INFO)
     logging.getLogger("requests").setLevel(logging.INFO)

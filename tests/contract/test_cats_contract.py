@@ -1,6 +1,6 @@
 import pytest
 import allure
-from utils.helpers import generate_unique_cat_name
+from utils.data_builders import build_cat_payload, generate_unique_cat_name
 import logging
 logger = logging.getLogger(__name__)
 
@@ -10,8 +10,8 @@ logger = logging.getLogger(__name__)
 def test_create_cat_contract(api, openapi_validator):
     logger.info("[CREATE CAT][POSITIVE] valid payload")
     # Arrange
-    name = generate_unique_cat_name()
-    payload = {"name": name, "age": 3, "breed": "POST"}
+    # name = generate_unique_cat_name()
+    payload = build_cat_payload()
     
     # Act
     with allure.step("Создаём нового кота"):
@@ -63,169 +63,6 @@ def test_create_cat_duplicate_name(api, openapi_validator):
         openapi_validator.validate_response(resp1)
         openapi_validator.validate_response(resp2)
 
-INVALID_PAYLOADS = [
-    ({"age": 3, "breed": "B"}, "missing 'name'"),
-    ({"name": "TestCat_", "breed": "B"}, "missing 'age'"),
-    ({"name": "TestCat_", "age": 3}, "missing 'breed'"),
-    ({"name": "TestCat_", "age": "old", "breed": "B"}, "invalid type of 'age'"),
-    ({"name": 5, "age": 5, "breed": 5}, "invalid type of 'name' and 'breed'"),
-    ({}, "empty payload")]
-@pytest.mark.contract
-@allure.feature("Contract")
-@allure.story("POST/cats invalid payload")
-@pytest.mark.parametrize("payload, description", INVALID_PAYLOADS)
-def test_create_cat_invalid_contract(api, openapi_validator, payload, description):
-    logger.info("[CREATE CAT][NEGATIVE] invalid payload")
-    
-    # Act
-    with allure.step(f"Отправляем POST с недопустимым payload: {description}"):
-        logger.info(f"Попытка создания с недопустимым payload: {description}")
-        logger.debug(f"Payload: {payload}")
-        resp = api.create_cat(payload)
-        allure.attach(str(payload), name="Invalid Payload", attachment_type=allure.attachment_type.JSON)
-
-    # Assert
-    with allure.step("Проверяем HTTP-статус"):
-        logger.info(f"HTTP-статус: {resp.status_code}")
-        assert resp.status_code == 400, f"Ожидалось 400, получено {resp.status_code}"
-
-    with allure.step("Проверяем контракт"):
-        logger.info("Проверка контракта")
-        openapi_validator.validate_response(resp)
-
-
-@pytest.mark.contract
-@allure.feature("Contract")
-@allure.story("GET/cats")
-def test_get_all_cats_contract(api, openapi_validator):
-    logger.info("[GET CATS][POSITIVE] Get all cats")
-
-    # Arrange
-    name = generate_unique_cat_name()
-    payload = {"name": name, "age": 10, "breed": "GET"}
-
-    with allure.step("Создаём нового кота"):
-        logger.info(f"Создаём кота: {payload}")
-        create_resp = api.create_cat(payload)
-        allure.attach(str(payload), name="Cat", attachment_type=allure.attachment_type.JSON)
-    
-    # Act
-    with allure.step("Запрашиваем всех котов"):
-        logger.info("Запрашиваем всех котов")
-        get_resp = api.get_all_cats()
-        logger.debug(f"Список котов: {get_resp.json()}")
-        allure.attach(str(get_resp.json()), name="All cats", attachment_type=allure.attachment_type.JSON)
-
-    # Assert
-    with allure.step("Проверяем HTTP-статус"):
-        logger.info(f"HTTP-статус: {get_resp.status_code}")
-        assert get_resp.status_code == 200, f"Ожидалось 200, получено {get_resp.status_code}"
-    with allure.step("Проверяем контракт"):
-        logger.info("Проверка контракта")
-        openapi_validator.validate_response(get_resp)
-
-@pytest.mark.contract
-@allure.feature("Contract")
-@allure.story("GET/cats/{id}")
-def test_get_cat_by_id_contract(api, openapi_validator):
-    logger.info("[GET CAT][POSITIVE] Get cat by valid Id")
-
-    # Arrange
-    name = generate_unique_cat_name()
-    payload = {"name": name, "age": 5, "breed": "GET_ID"}
-
-    with allure.step("Создаём нового кота"):
-        logger.info(f"Создаём кота: {payload}")
-        create_resp = api.create_cat(payload)
-        allure.attach(str(payload), name="Payload", attachment_type=allure.attachment_type.JSON)
-    cat_id = create_resp.json()["id"]
-    
-    # Act
-    with allure.step("Запрашиваем кота по ID"):
-        logger.info(f"Запрашиваем кота по ID {cat_id}")
-        get_resp = api.get_cat_by_id(cat_id)
-        allure.attach(str(get_resp.json()), name="Cat", attachment_type=allure.attachment_type.JSON)
-
-    # Assert
-    with allure.step("Проверяем HTTP-статус"):
-        logger.info(f"HTTP-статус: {get_resp.status_code}")
-        assert get_resp.status_code == 200, f"Ожидалось 200, получено {get_resp.status_code}"
-    with allure.step("Проверяем контракт"):
-        logger.info("Проверка контракта")
-        openapi_validator.validate_response(get_resp)
-
-@pytest.mark.contract
-@allure.feature("Contract")
-@allure.story("GET/cats/{id} invalid ID")
-@pytest.mark.parametrize("ID, expected_status", 
-    [(9999, 404), ("abc", 400)],
-    ids=["nonexistent id", "invalid id format"])
-def test_get_by_invalid_ID_contract(api, openapi_validator, ID, expected_status):
-    logger.info("[GET CAT][NEGATIVE] Get cat by invalid Id")
-
-    # Act
-    with allure.step(f"Запрашиваем по некорректному ID: {ID}"):
-        logger.info(f"Запрашиваем по некорректному ID: {ID}")
-        get_resp = api.get_cat_by_id(ID)
-
-    # Assert
-    with allure.step(f"Проверяем HTTP-статус"):
-        logger.info(f"HTTP-статус: {get_resp.status_code}")
-        assert get_resp.status_code == expected_status, f"Ожидалось {expected_status}, получено {get_resp.status_code}"
-    with allure.step("Проверяем контракт"):
-        logger.info("Проверка контракта")
-        openapi_validator.validate_response(get_resp)
-
-
-@pytest.mark.contract
-@allure.feature("Contract")
-@allure.story("DELETE/cats/{id}")
-def test_get_cat_by_id_contract(api, openapi_validator):
-    logger.info("[DELETE CAT][POSITIVE] Delete cat by valid Id")
-    
-    # Arrange
-    name = generate_unique_cat_name()
-    payload = {"name": name, "age": 7, "breed": "DELETE",}
-    with allure.step("Создаём нового кота"):
-        logger.info(f"Создаём кота: {payload}")
-        create_resp = api.create_cat(payload)
-        allure.attach(str(payload), name="Payload", attachment_type=allure.attachment_type.JSON)
-    cat_id = create_resp.json()["id"]
-    
-    # Act
-    with allure.step("Удаляем кота"):
-        logger.info(f"Удаляем кота")
-        delete_resp = api.delete_cat(cat_id)
-
-    # Assert
-    with allure.step("Проверяем HTTP-статус"):
-        logger.info(f"HTTP-статус: {delete_resp.status_code}")
-        assert delete_resp.status_code == 204, f"Ожидалось 204, получено {delete_resp.status_code}"
-    with allure.step("Проверяем контракт"):
-        logger.info("Проверка контракта")
-        openapi_validator.validate_response(delete_resp)
-
-
-@pytest.mark.contract
-@allure.feature("Contract")
-@allure.story("DELETE/cats/{id} invalid ID")
-@pytest.mark.parametrize("ID, expected_status", [(9999, 404), ("abc", 400)])
-def test_delete_invalid_ID_contract(api, openapi_validator, ID, expected_status):
-    logger.info("[DELETE CAT][NEGATIVE] Delete cat by invalid Id")
-
-    # Act
-    with allure.step(f"Удаляем по некорректному ID: {ID}"):
-        logger.info(f"Запрашиваем по некорректному ID: {ID}")
-        delete_resp = api.delete_cat(ID)
-
-    # Assert
-    with allure.step(f"Проверяем HTTP-статус"):
-        logger.info(f"HTTP-статус: {delete_resp.status_code}")
-        assert delete_resp.status_code == expected_status, f"Ожидалось {expected_status}, получено {delete_resp.status_code}"
-    with allure.step("Проверяем контракт"):
-        logger.info("Проверка контракта")
-        openapi_validator.validate_response(delete_resp)
-
 
 @pytest.mark.contract
 @allure.feature("Contract")
@@ -273,3 +110,168 @@ def test_create_cat_age_boundary(api, openapi_validator, age, expected_status):
     with allure.step("Проверяем контракт"):
         logger.info("Проверка контракта")
         openapi_validator.validate_response(resp)
+
+
+INVALID_PAYLOADS = [
+    ({"age": 3, "breed": "B"}, "missing 'name'"),
+    ({"name": "TestCat_", "breed": "B"}, "missing 'age'"),
+    ({"name": "TestCat_", "age": 3}, "missing 'breed'"),
+    ({"name": "TestCat_", "age": "old", "breed": "B"}, "invalid type of 'age'"),
+    ({"name": 5, "age": 5, "breed": 5}, "invalid type of 'name' and 'breed'"),
+    ({}, "empty payload")]
+@pytest.mark.contract
+@allure.feature("Contract")
+@allure.story("POST/cats invalid payload")
+@pytest.mark.parametrize("payload, description", INVALID_PAYLOADS)
+def test_create_cat_invalid_contract(api, openapi_validator, payload, description):
+    logger.info("[CREATE CAT][NEGATIVE] invalid payload")
+    
+    # Act
+    with allure.step(f"Отправляем POST с недопустимым payload: {description}"):
+        logger.info(f"Попытка создания с недопустимым payload: {description}")
+        logger.debug(f"Payload: {payload}")
+        resp = api.create_cat(payload)
+        allure.attach(str(payload), name="Invalid Payload", attachment_type=allure.attachment_type.JSON)
+
+    # Assert
+    with allure.step("Проверяем HTTP-статус"):
+        logger.info(f"HTTP-статус: {resp.status_code}")
+        assert resp.status_code == 400, f"Ожидалось 400, получено {resp.status_code}"
+
+    with allure.step("Проверяем контракт"):
+        logger.info("Проверка контракта")
+        openapi_validator.validate_response(resp)
+
+
+@pytest.mark.contract
+@allure.feature("Contract")
+@allure.story("GET/cats")
+def test_get_all_cats_contract(api, openapi_validator):
+    logger.info("[GET CATS][POSITIVE] Get all cats")
+
+    # Arrange
+    payload = build_cat_payload()
+    # name = generate_unique_cat_name()
+    # payload = {"name": name, "age": 10, "breed": "GET"}
+
+    with allure.step("Создаём нового кота"):
+        logger.info(f"Создаём кота: {payload}")
+        create_resp = api.create_cat(payload)
+        allure.attach(str(payload), name="Cat", attachment_type=allure.attachment_type.JSON)
+    
+    # Act
+    with allure.step("Запрашиваем всех котов"):
+        logger.info("Запрашиваем всех котов")
+        get_resp = api.get_all_cats()
+        logger.debug(f"Список котов: {get_resp.json()}")
+        allure.attach(str(get_resp.json()), name="All cats", attachment_type=allure.attachment_type.JSON)
+
+    # Assert
+    with allure.step("Проверяем HTTP-статус"):
+        logger.info(f"HTTP-статус: {get_resp.status_code}")
+        assert get_resp.status_code == 200, f"Ожидалось 200, получено {get_resp.status_code}"
+    with allure.step("Проверяем контракт"):
+        logger.info("Проверка контракта")
+        openapi_validator.validate_response(get_resp)
+
+@pytest.mark.contract
+@allure.feature("Contract")
+@allure.story("GET/cats/{id}")
+def test_get_cat_by_id_contract(api, openapi_validator):
+    logger.info("[GET CAT][POSITIVE] Get cat by valid Id")
+
+    # Arrange
+    payload = build_cat_payload()
+    # name = generate_unique_cat_name()
+    # payload = {"name": name, "age": 5, "breed": "GET_ID"}
+
+    with allure.step("Создаём нового кота"):
+        logger.info(f"Создаём кота: {payload}")
+        create_resp = api.create_cat(payload)
+        allure.attach(str(payload), name="Payload", attachment_type=allure.attachment_type.JSON)
+    cat_id = create_resp.json()["id"]
+    
+    # Act
+    with allure.step("Запрашиваем кота по ID"):
+        logger.info(f"Запрашиваем кота по ID {cat_id}")
+        get_resp = api.get_cat_by_id(cat_id)
+        allure.attach(str(get_resp.json()), name="Cat", attachment_type=allure.attachment_type.JSON)
+
+    # Assert
+    with allure.step("Проверяем HTTP-статус"):
+        logger.info(f"HTTP-статус: {get_resp.status_code}")
+        assert get_resp.status_code == 200, f"Ожидалось 200, получено {get_resp.status_code}"
+    with allure.step("Проверяем контракт"):
+        logger.info("Проверка контракта")
+        openapi_validator.validate_response(get_resp)
+
+@pytest.mark.contract
+@allure.feature("Contract")
+@allure.story("GET/cats/{id} invalid ID")
+@pytest.mark.parametrize("ID, expected_status", [(9999, 404), ("abc", 400)], ids=["nonexistent id", "invalid id format"])
+def test_get_by_invalid_ID_contract(api, openapi_validator, ID, expected_status):
+    logger.info("[GET CAT][NEGATIVE] Get cat by invalid Id")
+
+    # Act
+    with allure.step(f"Запрашиваем по некорректному ID: {ID}"):
+        logger.info(f"Запрашиваем по некорректному ID: {ID}")
+        get_resp = api.get_cat_by_id(ID)
+
+    # Assert
+    with allure.step(f"Проверяем HTTP-статус"):
+        logger.info(f"HTTP-статус: {get_resp.status_code}")
+        assert get_resp.status_code == expected_status, f"Ожидалось {expected_status}, получено {get_resp.status_code}"
+    with allure.step("Проверяем контракт"):
+        logger.info("Проверка контракта")
+        openapi_validator.validate_response(get_resp)
+
+
+@pytest.mark.contract
+@allure.feature("Contract")
+@allure.story("DELETE/cats/{id}")
+def test_delete_cat_contract(api, openapi_validator):
+    logger.info("[DELETE CAT][POSITIVE] Delete cat by valid Id")
+    
+    # Arrange
+    payload = build_cat_payload()
+    # name = generate_unique_cat_name()
+    # payload = {"name": name, "age": 7, "breed": "DELETE",}
+    with allure.step("Создаём нового кота"):
+        logger.info(f"Создаём кота: {payload}")
+        create_resp = api.create_cat(payload)
+        allure.attach(str(payload), name="Payload", attachment_type=allure.attachment_type.JSON)
+    cat_id = create_resp.json()["id"]
+    
+    # Act
+    with allure.step("Удаляем кота"):
+        logger.info(f"Удаляем кота")
+        delete_resp = api.delete_cat(cat_id)
+
+    # Assert
+    with allure.step("Проверяем HTTP-статус"):
+        logger.info(f"HTTP-статус: {delete_resp.status_code}")
+        assert delete_resp.status_code == 204, f"Ожидалось 204, получено {delete_resp.status_code}"
+    with allure.step("Проверяем контракт"):
+        logger.info("Проверка контракта")
+        openapi_validator.validate_response(delete_resp)
+
+
+@pytest.mark.contract
+@allure.feature("Contract")
+@allure.story("DELETE/cats/{id} invalid ID")
+@pytest.mark.parametrize("ID, expected_status", [(9999, 404), ("abc", 400)])
+def test_delete_invalid_ID_contract(api, openapi_validator, ID, expected_status):
+    logger.info("[DELETE CAT][NEGATIVE] Delete cat by invalid Id")
+
+    # Act
+    with allure.step(f"Удаляем по некорректному ID: {ID}"):
+        logger.info(f"Запрашиваем по некорректному ID: {ID}")
+        delete_resp = api.delete_cat(ID)
+
+    # Assert
+    with allure.step(f"Проверяем HTTP-статус"):
+        logger.info(f"HTTP-статус: {delete_resp.status_code}")
+        assert delete_resp.status_code == expected_status, f"Ожидалось {expected_status}, получено {delete_resp.status_code}"
+    with allure.step("Проверяем контракт"):
+        logger.info("Проверка контракта")
+        openapi_validator.validate_response(delete_resp)

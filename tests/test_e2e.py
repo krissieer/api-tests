@@ -1,6 +1,7 @@
 import pytest
 import allure
-from utils.helpers import generate_unique_cat_name, assert_cat_response
+from utils.data_builders import build_cat_payload
+from utils.models import assert_cat_response
 import logging
 logger = logging.getLogger(__name__)
 
@@ -11,8 +12,7 @@ def test_cat_full_lifecycle(api):
     logger.info("[End-to-End][POSITIVE] Cat's lifecycle")
 
     # Arrange 
-    name = generate_unique_cat_name()
-    payload = {"name": name, "age": 1, "breed": "E2E"}
+    payload = build_cat_payload()
     
     # Act
     with allure.step("Cоздаем кота"):
