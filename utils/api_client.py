@@ -5,9 +5,9 @@ class ShelterClient:
         self.base_url = base_url
         self.cats_url = f"{base_url}/cats"
         self.users_url = f"{base_url}/users"
-
-    # Методы для кошек
+    
     # Задание №1
+    # Методы для кошек
     def create_cat(self, data):
         return requests.post(self.cats_url, json=data)
 
@@ -21,6 +21,7 @@ class ShelterClient:
         return requests.delete(f"{self.cats_url}/{cat_id}")
 
     # Задание №2
+    # Методы для кошек
     def patch_cat(self, cat_id, data):
         return requests.patch(f"{self.cats_url}/{cat_id}", json=data)
 
