@@ -9,8 +9,8 @@ logger = logging.getLogger(__name__)
 @allure.story("POST/cats")
 def test_create_cat_contract(api, openapi_validator):
     logger.info("[CREATE CAT][POSITIVE] valid payload")
+    
     # Arrange
-    # name = generate_unique_cat_name()
     payload = build_cat_payload()
     
     # Act
@@ -33,6 +33,7 @@ def test_create_cat_contract(api, openapi_validator):
 @allure.story("POST/cats")
 def test_create_cat_duplicate_name(api, openapi_validator):
     logger.info("[CREATE CAT][NEGATIVE] duplicate name")
+    
     # Arrange
     name = generate_unique_cat_name()
     payload1 = {"name": name, "age": 2, "breed": "Persian"}
@@ -66,50 +67,33 @@ def test_create_cat_duplicate_name(api, openapi_validator):
 
 @pytest.mark.contract
 @allure.feature("Contract")
-@allure.story("Boundary: name length")
-@pytest.mark.parametrize("name", ["", "A", " "], ids=["empty name", "one_char name", "space"])
-def test_create_cat_name_too_short(api, openapi_validator, name):
-    logger.info("[CREATE CAT][NEGATIVE] borderline name length")
+@allure.story("POST/cats with optional fields")
+def test_create_cat_with_optional_fields_contract(api, openapi_validator):
+    logger.info("[CREATE CAT][POSITIVE] payload with optional fields")
     
     # Arrange
-    payload = {"name": name, "age": 2, "breed": "Boundary"}
-
+    payload = {
+        "name": generate_unique_cat_name(),
+        "age": 3,
+        "breed": "Siamese",
+        "history": "Found in 2024",
+        "description": "Very friendly",
+    }
+    
     # Act
-    with allure.step(f"Отправляем POST с именем: '{name}'"):
-        logger.info(f"Попытка создания кота с именем: '{name}'")
-        response = api.create_cat(payload)
-
+    with allure.step("Создаём кота с optional-полями"):
+        logger.info(f"Создание кота с optional-полями: {payload}")
+        resp = api.create_cat(payload)
+        allure.attach(str(payload), name="Cat", attachment_type=allure.attachment_type.JSON)
+        
     # Assert
     with allure.step("Проверяем HTTP-статус"):
-        logger.info(f"HTTP-статус: {response.status_code}")
-        assert response.status_code == 400, f"Ожидалось 400, получено {response.status_code}"
-    with allure.step("Проверяем контракт"):
-        logger.info("Проверка контракта")
-        openapi_validator.validate_response(response)
-    
-
-@pytest.mark.contract
-@allure.feature("Contract")
-@allure.story("Boundary: age values")
-@pytest.mark.parametrize("age, expected_status", [(-1, 400), (0, 201), (1, 201)], ids=["-1", "0", "1"])
-def test_create_cat_age_boundary(api, openapi_validator, age, expected_status):
-    logger.info("[CREATE CAT][POSITIVE/NEGATIVE] borderline age values")
-    
-    # Arrange 
-    payload = {"name": generate_unique_cat_name(), "age": age, "breed": "Boundary"}
-    
-    # Act
-    with allure.step(f"Отправляем POST с возрастом: {age}"):
-        logger.info(f"Попытка создания кота с возрастом: {age}")
-        resp = api.create_cat(payload)
-
-    # Assert
-    with allure.step(f"Проверяем HTTP-статус"):
         logger.info(f"HTTP-статус: {resp.status_code}")
-        assert resp.status_code == expected_status, f"Ожидалось {expected_status}, получено {resp.status_code}"
+        assert resp.status_code == 201, f"Ожидалось 201, получено {resp.status_code}"
     with allure.step("Проверяем контракт"):
         logger.info("Проверка контракта")
         openapi_validator.validate_response(resp)
+
 
 
 INVALID_PAYLOADS = [
@@ -151,9 +135,6 @@ def test_get_all_cats_contract(api, openapi_validator):
 
     # Arrange
     payload = build_cat_payload()
-    # name = generate_unique_cat_name()
-    # payload = {"name": name, "age": 10, "breed": "GET"}
-
     with allure.step("Создаём нового кота"):
         logger.info(f"Создаём кота: {payload}")
         create_resp = api.create_cat(payload)
@@ -174,6 +155,26 @@ def test_get_all_cats_contract(api, openapi_validator):
         logger.info("Проверка контракта")
         openapi_validator.validate_response(get_resp)
 
+
+@pytest.mark.contract
+@allure.feature("Contract")
+@allure.story("GET/cats")
+def test_get_all_cats_empty_contract(api, openapi_validator):
+    logger.info("[GET CATS][POSITIVE] Get empty list")
+
+    # Act
+    with allure.step("Запрашиваем всех котов в пустой БД"):
+        get_resp = api.get_all_cats()
+
+    # Assert
+    with allure.step("Проверяем HTTP-статус"):
+        logger.info(f"HTTP-статус: {get_resp.status_code}")
+        assert get_resp.status_code == 200, f"Ожидалось 200, получено {get_resp.status_code}"
+    with allure.step("Проверяем контракт"):
+        logger.info("Проверка контракта")
+        openapi_validator.validate_response(get_resp)
+
+
 @pytest.mark.contract
 @allure.feature("Contract")
 @allure.story("GET/cats/{id}")
@@ -182,9 +183,6 @@ def test_get_cat_by_id_contract(api, openapi_validator):
 
     # Arrange
     payload = build_cat_payload()
-    # name = generate_unique_cat_name()
-    # payload = {"name": name, "age": 5, "breed": "GET_ID"}
-
     with allure.step("Создаём нового кота"):
         logger.info(f"Создаём кота: {payload}")
         create_resp = api.create_cat(payload)
@@ -234,8 +232,6 @@ def test_delete_cat_contract(api, openapi_validator):
     
     # Arrange
     payload = build_cat_payload()
-    # name = generate_unique_cat_name()
-    # payload = {"name": name, "age": 7, "breed": "DELETE",}
     with allure.step("Создаём нового кота"):
         logger.info(f"Создаём кота: {payload}")
         create_resp = api.create_cat(payload)

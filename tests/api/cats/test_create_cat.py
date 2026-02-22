@@ -33,7 +33,7 @@ def test_create_cat_and_get_by_id(api):
 
     with allure.step("Проверяем поля в ответе"):
         logger.info("Проверяем поля в ответе")
-        assert_cat_response(get_resp.json(), payload["name"], payload["age"], payload["breed"])
+        assert_cat_response(get_resp.json(), payload["name"], payload["age"], payload["breed"], payload.get("history"), payload.get("description"))
 
 
 @pytest.mark.api
