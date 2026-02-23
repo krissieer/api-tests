@@ -36,7 +36,10 @@ def test_delete_cat_contract(api, openapi_validator):
 @pytest.mark.contract
 @allure.feature("Contract")
 @allure.story("DELETE/cats/{id} invalid ID")
-@pytest.mark.parametrize("ID, expected_status", [(9999, 404), ("abc", 400)])
+@pytest.mark.parametrize(
+    "ID, expected_status",
+    [(9999, 404), ("abc", 400), (1.5, 400)],
+    ids=["nonexistent id", "invalid id format", "float id format"])
 def test_delete_invalid_ID_contract(api, openapi_validator, ID, expected_status):
     logger.info("[DELETE CAT][NEGATIVE] Delete cat by invalid Id")
 

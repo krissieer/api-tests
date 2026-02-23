@@ -112,7 +112,7 @@ def test_create_cat_name_too_short(api, openapi_validator, invalid_name):
 @pytest.mark.api
 @allure.feature("API")
 @allure.story("Boundary")
-@pytest.mark.parametrize("age, expected_status", [(-1, 400), (0, 201), (1, 201)], ids=["-1", "0", "1"])
+@pytest.mark.parametrize("age, expected_status", [(-1, 400), (0, 201), (1, 201), (1.5, 400)], ids=["-1", "0", "1","1.5"])
 def test_create_cat_age_boundary(api, openapi_validator, age, expected_status):
     logger.info("[API] borderline age values")
     
