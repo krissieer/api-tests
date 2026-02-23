@@ -43,7 +43,10 @@ def test_adopt_cat_contract(api, openapi_validator):
 @pytest.mark.contract
 @allure.feature("Contract")
 @allure.story("PATCH /cats/{id}/adopt invalid cat's id format")
-@pytest.mark.parametrize("catId, expected_status", [(9999, 404), ("abc", 400)], ids=["nonexistent id", "invalid id format"])
+@pytest.mark.parametrize(
+    "catId, expected_status",
+    [(9999, 404), ("abc", 400), (1.5, 400)],
+    ids=["nonexistent id", "invalid id format", "float id format"])
 def test_patch_cat_invalid_catid_contract(api, openapi_validator, catId, expected_status):
     logger.info("[PATCH CAT][NEGATIVE] adopt cat - invalid cat's id")
     
@@ -72,7 +75,10 @@ def test_patch_cat_invalid_catid_contract(api, openapi_validator, catId, expecte
 @pytest.mark.contract
 @allure.feature("Contract")
 @allure.story("PATCH /cats/{id}/adopt invalid user's Id format")
-@pytest.mark.parametrize("userId, expected_status", [(9999, 404), ("abc", 400)], ids=["nonexistent id", "invalid id format"])
+@pytest.mark.parametrize(
+    "userId, expected_status",
+    [(9999, 404), ("abc", 400), (1.5, 400)],
+    ids=["nonexistent id", "invalid id format", "float id format"])
 def test_patch_cat_invalid_userid_contract(api, openapi_validator, userId, expected_status):
     logger.info("[PATCH CAT][NEGATIVE] adopt cat - invalid user's id")
     

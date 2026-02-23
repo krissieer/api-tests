@@ -10,38 +10,6 @@ logger = logging.getLogger(__name__)
 @pytest.mark.api
 @allure.feature("API")
 @allure.story("POST/users")
-def test_create_user_success(api):
-    logger.info("[API] Checking user creaton and availability")
-    
-    # Arrange
-    payload_user = build_user_payload()
-
-    # Act
-    with allure.step("Создаём пользователя"):
-        logger.info(f"Создание пользователя: {payload_user}")
-        create_user = api.create_user(payload_user)
-        allure.attach(str(payload_user), name="User", attachment_type=allure.attachment_type.JSON)
-    user_id = create_user.json()["id"]
-
-    with allure.step("Получаем созданного пользователя по его Id"):
-        logger.info(f"Получаем созданного пользователя по его Id: {user_id}")
-        get_resp = api.get_user_by_id(user_id)
-
-    # Assert
-    with allure.step("Проверяем HTTP-статус"):
-        logger.info(f"HTTP-статус создания: {create_user.status_code}")
-        assert create_user.status_code == 201, f"Ожидалось 201, получено {create_user.status_code}"
-        logger.info(f"HTTP-статус получения: {get_resp.status_code}")
-        assert get_resp.status_code == 200, f"Ожидалось 200, получено {get_resp.status_code}"
-
-    with allure.step("Проверяем поля в ответе"):
-        logger.info("Проверяем поля в ответе")
-        assert_user_response(get_resp.json(), payload_user["firstName"], payload_user["lastName"])
-
-
-@pytest.mark.api
-@allure.feature("API")
-@allure.story("POST/users")
 def test_user_list_length_changes_after_addition(api):
     logger.info("[API] checking changing amount of users")
 
@@ -61,6 +29,10 @@ def test_user_list_length_changes_after_addition(api):
         allure.attach(str(payload), name="Payload", attachment_type=allure.attachment_type.JSON)
     user_id = create_resp.json()["id"]
 
+    with allure.step("Получаем созданного пользователя по его Id"):
+        logger.info(f"Получаем созданного пользователя по его Id: {user_id}")
+        get_resp = api.get_user_by_id(user_id)
+
     with allure.step("Получаем список пользователей после добавления"):
         logger.info("Получаем список пользователей после добавления")
         after_create_resp = api.get_all_users()
@@ -68,6 +40,12 @@ def test_user_list_length_changes_after_addition(api):
         allure.attach(str(after_create_resp.json()), name="after addition user list", attachment_type=allure.attachment_type.JSON)
      
     # Assert
+    with allure.step("Проверяем HTTP-статус"):
+        logger.info(f"HTTP-статус создания: {create_resp.status_code}")
+        assert create_resp.status_code == 201, f"Ожидалось 201, получено {create_resp.status_code}"
+        logger.info(f"HTTP-статус получения: {get_resp.status_code}")
+        assert get_resp.status_code == 200, f"Ожидалось 200, получено {get_resp.status_code}"
+
     with allure.step(f"Проверяем начальное количество пользователей: {len(initial_resp.json())}"):
         logger.info(f"Начальное количество пользователей: {len(initial_resp.json())}")
         initial_count = len(initial_resp.json())

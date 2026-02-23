@@ -38,7 +38,10 @@ def test_get_user_by_id_contract(api, openapi_validator):
 @pytest.mark.contract
 @allure.feature("Contract")
 @allure.story("GET/users/{id} invalid format")
-@pytest.mark.parametrize("ID, expected_status", [(9999, 404), ("abc", 400)], ids=["nonexistent id", "invalid id format"])
+@pytest.mark.parametrize(
+    "ID, expected_status",
+    [(9999, 404), ("abc", 400), (1.5, 400)],
+    ids=["nonexistent id", "invalid id format", "float id format"])
 def test_get_user_invalid_id_format_contract(api, openapi_validator, ID, expected_status):
     logger.info("[GET USER][NEGATIVE] Get user by invalid Id")
 
@@ -110,7 +113,10 @@ def test_get_adopted_cats_by_userId_contract(api, openapi_validator):
 @pytest.mark.contract
 @allure.feature("Contract")
 @allure.story("GET/users/{id}/cats")
-@pytest.mark.parametrize("userId, expected_status", [(9999, 404), ("abc", 400)], ids=["nonexistent id", "invalid id format"])
+@pytest.mark.parametrize(
+    "userId, expected_status",
+    [(9999, 404), ("abc", 400), (1.5, 400)],
+    ids=["nonexistent id", "invalid id format", "float id format"])
 def test_get_adopted_cats_by_invalid_userId_contract(api, openapi_validator, userId, expected_status):
     logger.info("[GET USER'S CATS][NEGATIVE] get cats by invalid userID")
     

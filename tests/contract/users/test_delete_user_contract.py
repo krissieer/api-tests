@@ -36,7 +36,10 @@ def test_delete_user_contract(api, openapi_validator):
 @pytest.mark.contract
 @allure.feature("Contract")
 @allure.story("DELETE/users/{id} invalid user's id format")
-@pytest.mark.parametrize("userId, expected_status", [(9999, 404), ("abc", 400)], ids=["nonexistent id", "invalid id format"])
+@pytest.mark.parametrize(
+    "userId, expected_status",
+    [(9999, 404), ("abc", 400), (1.5, 400)],
+    ids=["nonexistent id", "invalid id format", "float id format"])
 def test_delete_user_invalid_id_contract(api, openapi_validator, userId, expected_status):
     logger.info("[DELETE USER][NEGATIVE] Delete user by invalid Id")
     

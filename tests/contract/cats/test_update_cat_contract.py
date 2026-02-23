@@ -47,8 +47,11 @@ def test_patch_cat_contract(api, openapi_validator):
 @pytest.mark.contract
 @allure.feature("Contract")
 @allure.story("PATCH/cats/{id} invalid cat's id format")
-@pytest.mark.parametrize("catId, expected_status", [(9999, 404), ("abc", 400)], ids=["nonexistent id", "invalid id format"])
-def test_patch_cat_not_found_contract(api, openapi_validator, catId, expected_status):
+@pytest.mark.parametrize(
+    "catId, expected_status",
+    [(9999, 404), ("abc", 400), (1.5, 400)],
+    ids=["nonexistent id", "invalid id format", "float id format"])
+def test_patch_cat_invalid_catId_contract(api, openapi_validator, catId, expected_status):
     logger.info("[PATCH CAT][NEGATIVE] update cat with invalid id")
     
     # Arrange
