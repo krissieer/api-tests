@@ -1,12 +1,14 @@
 import uuid
 
-
-def generate_unique_cat_name(prefix: str = "TestCat") -> str:
+# Генерация уникального имени
+def generate_unique_name(prefix: str = "TestCat") -> str:
     return f"{prefix}_{uuid.uuid4().hex[:8]}"
 
-def build_cat_payload(name: str | None = None, age: int = 1, breed: str = "Test") -> dict:
+# Генерация payload для кошки
+def build_cat_payload(**kwargs):
     return {
-        "name": name or generate_unique_cat_name(),
-        "age": age,
-        "breed": breed,
+        "name": generate_unique_name(),
+        "age": 1,
+        "breed": "Test",
+        **kwargs
     }
