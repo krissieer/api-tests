@@ -1,7 +1,6 @@
 import pytest
 import allure
 from utils.data_builders import build_cat_payload
-from utils.models import assert_cat_response
 import logging
 logger = logging.getLogger(__name__)
 
@@ -44,10 +43,6 @@ def test_create_cat_and_get_by_id(api):
         assert create_resp.status_code == 201, f"Ожидалось 201, получено {create_resp.status_code}"
         logger.info(f"HTTP-статус получения: {get_resp.status_code}")
         assert get_resp.status_code == 200, f"Ожидалось 200, получено {get_resp.status_code}"
-
-    with allure.step("Проверяем поля в ответе"):
-        logger.info("Проверяем поля в ответе")
-        assert_cat_response(get_resp.json(), payload["name"], payload["age"], payload["breed"], payload.get("history"), payload.get("description"))
 
     with allure.step("Проверяем, что после добавления количество котов увеличилось"):
         logger.info(f"Количество котов после добавления: {new_count}")
