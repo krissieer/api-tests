@@ -1,6 +1,5 @@
 import pytest
 import allure
-from utils.helpers import generate_unique_cat_name, generate_unique_user_payload
 import utils.openapi_validator
 import logging
 logger = logging.getLogger(__name__)
@@ -12,27 +11,18 @@ logger = logging.getLogger(__name__)
 def test_get_summary_contract(api, openapi_validator):
     logger.info("[GET SUMMARY STATS] get total number of cats, adopted cats, adoption rate")
 
-    # # Arrange
-    # with allure.step("Создаём нового пользователя"):
-    #     create_user_resp = api.create_user(generate_unique_user_payload())
-    # patch_payload =  {"userId": create_user_resp.json()["id"]}
-
-    # with allure.step("Создаём нового кота"):
-    #     create_cat_resp = api.create_cat({"name": generate_unique_cat_name(), "age": 7, "breed": "GET/stats"})
-    # cat_id = create_cat_resp.json()["id"]
-
-    # with allure.step("Обновляем данные кота о владельце"):
-    #     patch_resp = api.adopt_cat(cat_id, patch_payload)
-
     # Act
-    with allure.step("Получаем статистику"):
+    with allure.step("Получаем общую статистику"):
+        logger.info(f"Получаем общую статистику")
         stat_resp = api.get_summary_stats()
         allure.attach(str(stat_resp.json()), name="Stats", attachment_type=allure.attachment_type.JSON)
 
     # Assert
     with allure.step("Проверяем HTTP-статус"):
+        logger.info(f"HTTP-статус: {stat_resp.status_code}")
         assert stat_resp.status_code == 200, f"Ожидалось 200, получено {stat_resp.status_code}"
     with allure.step("Проверяем контракт"):
+        logger.info("Проверка контракта")
         openapi_validator.validate_response(stat_resp)
 
 
@@ -42,20 +32,18 @@ def test_get_summary_contract(api, openapi_validator):
 def test_get_stats_by_breeds_contract(api, openapi_validator):
     logger.info("[GET BREED STATS] get number of cats by breed")
 
-    # # Arrange
-    # with allure.step("Создаём нового кота"):
-    #     create_cat_resp = api.create_cat({"name": generate_unique_cat_name(), "age": 7, "breed": "GET/stats"})
-    # cat_id = create_cat_resp.json()["id"]
-
     # Act
-    with allure.step("Получаем статистику"):
+    with allure.step("Получаем статистику по породам"):
+        logger.info(f"Получаем статистику по породам")
         stat_resp = api.get_stats_by_breed()
         allure.attach(str(stat_resp.json()), name="Stats breed", attachment_type=allure.attachment_type.JSON)
 
     # Assert
     with allure.step("Проверяем HTTP-статус"):
+        logger.info(f"HTTP-статус: {stat_resp.status_code}")
         assert stat_resp.status_code == 200, f"Ожидалось 200, получено {stat_resp.status_code}"
     with allure.step("Проверяем контракт"):
+        logger.info("Проверка контракта")
         openapi_validator.validate_response(stat_resp)
 
 
@@ -64,17 +52,6 @@ def test_get_stats_by_breeds_contract(api, openapi_validator):
 @allure.story("GET/stats/top-adopters")
 def test_stats_top_adopters_contract(api, openapi_validator):
     logger.info("[GET ADOPTERS STATS] get users who adopted cats")
-    # # Arrange
-    # with allure.step("Создаём нового пользователя"):
-    #     create_user_resp = api.create_user(generate_unique_user_payload())
-    # patch_payload =  {"userId": create_user_resp.json()["id"]}
-
-    # with allure.step("Создаём нового кота"):
-    #     create_cat_resp = api.create_cat({"name": generate_unique_cat_name(), "age": 7, "breed": "GET/stats"})
-    # cat_id = create_cat_resp.json()["id"]
-
-    # with allure.step("Обновляем данные кота о владельце"):
-    #     patch_resp = api.adopt_cat(cat_id, patch_payload)
     
     # Act
     with allure.step("Получаем статистику"):
@@ -83,7 +60,9 @@ def test_stats_top_adopters_contract(api, openapi_validator):
 
     # Assert
     with allure.step("Проверяем HTTP-статус"):
+        logger.info(f"HTTP-статус: {stat_resp.status_code}")
         assert stat_resp.status_code == 200, f"Ожидалось 200, получено {stat_resp.status_code}"
     with allure.step("Проверяем контракт"):
+        logger.info("Проверка контракта")
         openapi_validator.validate_response(stat_resp)
 
