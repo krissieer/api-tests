@@ -8,8 +8,8 @@ class ShelterClient:
         self.stats_url = f"{base_url}/stats"
         self.auth_url = f"{base_url}/auth"
 
-    # Методы для кошек
     # Задание №1
+    # Методы для кошек
     def create_cat(self, data, token=None):
         return requests.post(self.cats_url, json=data, headers=self._headers(token))
 
@@ -23,13 +23,14 @@ class ShelterClient:
         return requests.delete(f"{self.cats_url}/{cat_id}", headers=self._headers(token))
 
     # Задание №2
+    # Методы для кошек
     def patch_cat(self, cat_id, data, token=None):
         return requests.patch(f"{self.cats_url}/{cat_id}", json=data, headers=self._headers(token))
 
     def adopt_cat(self, cat_id, data, token=None):
         return requests.patch(f"{self.cats_url}/{cat_id}/adopt", json=data, headers=self._headers(token))
     
-     # Методы для пользователей
+    # Методы для пользователей
     def create_user(self, data, token=None):
         return requests.post(self.users_url, json=data, headers=self._headers(token))
 
@@ -55,13 +56,13 @@ class ShelterClient:
     def get_adopters_stats(self, token=None):
         return requests.get(f"{self.stats_url}/top-adopters", headers=self._headers(token))
 
+    # Задание №4
     def _headers(self, token=None):
         headers = {"Content-Type": "application/json"}
         if token:
             headers["Authorization"] = f"Bearer {token}"
         return headers
-
-    # Задание №4
+    
     def register(self, data):
         return requests.post(f"{self.auth_url}/register", json=data)
     
@@ -69,11 +70,13 @@ class ShelterClient:
         return requests.post(f"{self.auth_url}/login", json=data)
 
     # Задание №5
+    # Методы для кошек
     def create_health_card(self, cat_id, data, token=None):
         return requests.post(f"{self.cats_url}/{cat_id}/health-card", json=data, headers=self._headers(token))
 
     def patch_health_card(self, cat_id, data, token=None):
         return requests.patch(f"{self.cats_url}/{cat_id}/health-card", json=data, headers=self._headers(token))
 
+    # Методы для пользователей
     def make_admin(self, user_id, token=None):
         return requests.post(f"{self.users_url}/{user_id}/make-admin", headers=self._headers(token))

@@ -1,2 +1,5 @@
 pytest==7.4.0
 requests==2.31.0
+PyYAML==6.0.2
+allure-pytest==2.13.5
+openapi-core==0.19.4

@@ -69,6 +69,9 @@
         "operationId": "UsersController_findAll",
         "parameters": [],
         "responses": {
+          "200": {
+            "description": "Success"
+          },
           "401": {
             "description": "Not authorized: No token provided or token invalid."
           }
@@ -350,7 +353,7 @@
             "in": "path",
             "description": "Unique numerical ID of the cat",
             "schema": {
-              "type": "number"
+              "type": "string"
             }
           }
         ],
@@ -401,7 +404,7 @@
             "in": "path",
             "description": "Unique numerical ID of the cat",
             "schema": {
-              "type": "number"
+              "type": "string"
             }
           }
         ],
@@ -430,7 +433,7 @@
             "required": true,
             "in": "path",
             "schema": {
-              "type": "number"
+              "type": "string"
             }
           }
         ],
@@ -472,7 +475,7 @@
             "required": true,
             "in": "path",
             "schema": {
-              "type": "number"
+              "type": "string"
             }
           }
         ],
@@ -529,7 +532,7 @@
             "description": "Internal ID of the cat",
             "schema": {
               "example": 1,
-              "type": "number"
+              "type": "string"
             }
           }
         ],
@@ -581,7 +584,7 @@
             "description": "Internal ID of the cat",
             "schema": {
               "example": 1,
-              "type": "number"
+              "type": "string"
             }
           }
         ],
