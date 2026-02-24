@@ -5,6 +5,36 @@ import utils.openapi_validator
 import logging
 logger = logging.getLogger(__name__)
 
+
+@pytest.mark.contract
+@allure.feature("Contract")
+@allure.story("GET/users")
+def test_get_all_users_contract(api, openapi_validator):
+    logger.info("[GET USERS][POSITIVE] Get all users")
+    
+    # Arrange
+    payload = build_user_payload()
+    with allure.step("Создаём нового пользователя"):
+        logger.info(f"Создание нового пользователя: {payload}")
+        create_resp = api.create_user(payload)
+        allure.attach(str(payload), name="User", attachment_type=allure.attachment_type.JSON)
+
+    # Act
+    with allure.step("Запрашиваем всех пользователей"):
+        logger.info(f"Запрашиваем всех пользователей")
+        get_resp = api.get_all_users()
+        logger.debug(f"Список пользователей: {get_resp.json()}")
+        allure.attach(str(get_resp.json()), name="All users", attachment_type=allure.attachment_type.JSON)
+
+    # Assert
+    with allure.step("Проверяем HTTP-статус"):
+        logger.info(f"HTTP-статус: {get_resp.status_code}")
+        assert get_resp.status_code == 200, f"Ожидалось 200, получено {get_resp.status_code}"
+    with allure.step("Проверяем контракт"):
+        logger.info("Проверка контракта")
+        openapi_validator.validate_response(get_resp)
+
+
 @pytest.mark.contract
 @allure.feature("Contract")
 @allure.story("GET/users/{id}")
