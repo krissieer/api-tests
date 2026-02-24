@@ -2,14 +2,13 @@ import pytest
 import allure
 from utils.data_builders import build_user_payload
 from utils.models import assert_user_response
-import utils.openapi_validator
 import logging
 logger = logging.getLogger(__name__)
 
 @pytest.mark.api
 @allure.feature("API")
 @allure.story("POST/auth/register success")
-def test_register_success(api, openapi_validator, auth_token):
+def test_register_success(api, auth_token):
     logger.info("[API] registration")
     
     # Arrange

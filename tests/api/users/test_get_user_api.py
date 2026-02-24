@@ -2,7 +2,6 @@ import pytest
 import allure
 from utils.data_builders import build_cat_payload, build_user_payload
 from utils.models import assert_user_response
-import utils.openapi_validator
 import logging
 logger = logging.getLogger(__name__)
 
@@ -10,7 +9,7 @@ logger = logging.getLogger(__name__)
 @pytest.mark.api
 @allure.feature("API")
 @allure.story("GET/users/{id}")
-def test_get_user_by_id(api, openapi_validator):
+def test_get_user_by_id(api):
     logger.info("[API] Get user by Id with authorization")
     
     # Arrange
@@ -48,7 +47,7 @@ def test_get_user_by_id(api, openapi_validator):
 @allure.feature("API")
 @allure.story("GET/users/{id}/cats")
 def test_user_with_adopted_cat(api):
-    logger.info("[API] Get user's cats")
+    logger.info("[API] Get user's cats  with authorization")
 
     # Arrange
     user_payload = build_user_payload()

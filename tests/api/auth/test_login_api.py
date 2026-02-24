@@ -1,14 +1,13 @@
 import pytest
 import allure
 from utils.data_builders import build_user_payload
-import utils.openapi_validator
 import logging
 logger = logging.getLogger(__name__)
 
 @pytest.mark.api
 @allure.feature("API")
 @allure.story("POST/auth/login success")
-def test_login_success(api, openapi_validator):
+def test_login_success(api):
     logger.info("[API] login successful")
     
     # Arrange

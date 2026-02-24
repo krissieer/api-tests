@@ -2,7 +2,6 @@ import pytest
 import allure
 from utils.data_builders import build_user_payload, build_cat_payload
 from utils.models import assert_cat_response
-import utils.openapi_validator
 import logging
 logger = logging.getLogger(__name__)
 
@@ -33,6 +32,7 @@ def test_create_cat_and_get_success(api):
     with allure.step("Создаём кота"):
         logger.info(f"Создаём кота: {payload}")
         create_resp = api.create_cat(payload, token=token)
+        allure.attach(str(payload), name="Cat", attachment_type=allure.attachment_type.JSON)
         cat_id = create_resp.json()["id"]
 
     with allure.step("Получаем созданного кота по его Id"):
