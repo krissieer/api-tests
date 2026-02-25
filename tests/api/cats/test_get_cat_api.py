@@ -8,9 +8,9 @@ logger = logging.getLogger(__name__)
 
 @pytest.mark.api
 @allure.feature("API")
-@allure.story("POST/cats/{id}/health-card")
-def test_create_health_card_success(api, auth_token):
-    logger.info("[API] check health-card creation")
+@allure.story("GET/cats/{id}")
+def test_get_cat_with_health_card(api, auth_token):
+    logger.info("[API] get cat with health card")
 
     # Arrange
     cat_payload = build_cat_payload()
@@ -21,14 +21,19 @@ def test_create_health_card_success(api, auth_token):
     cat_id = cat_resp.json()["id"]
 
     payload = build_health_card()
-
-    # Act
     with allure.step("Создаем мед.книжку коту"):
         logger.info(f"Создаем мед.книжку коту: {payload}")
-        post_resp = api.create_health_card(cat_id, payload, auth_token).json()
+        post_resp = api.create_health_card(cat_id, payload, auth_token)
+
+    # Act
+    with allure.step("Получаем созданного кота по Id"):
+        logger.info("Получаем созданного кота по Id")
+        get_resp = api.get_cat_by_id(cat_id).json()
+        logger.debug(f"Найденный кот: {get_resp}")
+        allure.attach(str(get_resp), name="gotten cat", attachment_type=allure.attachment_type.JSON)
 
     # Assert
     with allure.step("Проверяем поля в ответе"):
         logger.info("Проверяем поля в ответе")
-        assert_health_card(post_resp, payload["lastVaccination"], payload["medicalStatus"], payload.get("notes"))
-        assert_cat_response(post_resp["cat"], cat_payload["name"], cat_payload["age"], cat_payload["breed"], cat_payload.get("history"), cat_payload.get("description")) 
+        assert_cat_response(get_resp, cat_payload["name"], cat_payload["age"], cat_payload["breed"], cat_payload.get("history"), cat_payload.get("description"))
+        assert_health_card(get_resp["healthCard"], payload["lastVaccination"], payload["medicalStatus"], payload.get("notes"))

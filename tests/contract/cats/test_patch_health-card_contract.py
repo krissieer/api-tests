@@ -64,7 +64,10 @@ def test_patch_health_card_unauthorized(api, openapi_validator):
 @pytest.mark.contract
 @allure.feature("Contract")
 @allure.story("PATCH/cats/{id}/health-card invalid ID format")
-@pytest.mark.parametrize("ID, expected_status", [(9999, 404), ("abc", 400)], ids=["nonexistent id", "invalid id format"])
+@pytest.mark.parametrize(
+    "ID, expected_status",
+    [(9999, 404), ("abc", 400), (1.5, 400)],
+    ids=["nonexistent id", "invalid id format", "float id format"])
 def test_patch_health_card_invalid_id_format(api, openapi_validator, ID, expected_status, auth_token):
     logger.info("[PATCH][NEGATIVE] update health-card with invalid Id")
 
@@ -86,12 +89,12 @@ def test_patch_health_card_invalid_id_format(api, openapi_validator, ID, expecte
 
 
 INVALID_PAYLOADS = [
-    ({"medicalStatus": "login", "notes": "test_notes"},  "missing 'lastVaccination'"),
+    ({"medicalStatus": "test_status", "notes": "test_notes"},  "missing 'lastVaccination'"),
     ({"lastVaccination": "2025-12-01", "notes": "test_notes"},  "missing 'medicalStatus'"),
     ({"lastVaccination": "string", "medicalStatus": "test_status"},  "invalid type of 'lastVaccination'"),
     ({"lastVaccination": 11, "medicalStatus": "test_status"},  "invalid type of 'lastVaccination'"),
     ({"lastVaccination": "2025-12-01", "medicalStatus": 11},  "invalid type of 'medicalStatus'"),
-    ({"lastVaccination": "2025-12-01", "medicalStatus": "test_notes", "notes": 11},  "invalid type of 'notes'"),
+    ({"lastVaccination": "2025-12-01", "medicalStatus": "test_status", "notes": 11},  "invalid type of 'notes'"),
     ({}, "empty payload")]
 @pytest.mark.contract
 @allure.feature("Contract")

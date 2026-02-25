@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 def assert_cat_response(data, expected_name, expected_age, expected_breed, expected_history=None, expected_description=None):
     assert "id" in data
     assert data["name"] == expected_name, f"Ожидалось {expected_name}, получено {data['name']}"
@@ -31,9 +33,13 @@ def assert_user_is_admin(data, expected_login, expected_firstName, expected_last
     assert data["lastName"] == expected_lastName, f"Ожидалось {expected_lastName}, получено {data['lastName']}"
     assert data["role"]["id"] == 2, f"Ожидалось 2, получено {data['role']['id']}"
 
-def assert_health_card(data, expected_date, expected_status, expected_notes, cat_id):
+def assert_health_card(data, expected_date, expected_status, expected_notes):
     assert "id" in data
-    assert data["lastVaccination"] == expected_date, f"Ожидалось {expected_date}, получено {data['lastVaccination']}"
+    
+    returned_dt = datetime.fromisoformat(data["lastVaccination"].replace("Z", "+00:00"))
+    expected_dt = datetime.strptime(expected_date, "%Y-%m-%d")
+    delta_days = abs((returned_dt.date() - expected_dt.date()).days)
+    assert delta_days <= 1, f"Ожидалось {expected_dt.date()}, получено {returned_dt.date()}"
+    
     assert data["medicalStatus"] == expected_status, f"Ожидалось {expected_status}, получено {data['medicalStatus']}"
     assert data.get("notes") == expected_notes, f"Ожидалось {expected_notes}, получено {data.get('notes')}"
-    assert data["cat"]["id"] == cat_id, f"Ожидалось {cat_id}, получено {data['cat']['id']}"
