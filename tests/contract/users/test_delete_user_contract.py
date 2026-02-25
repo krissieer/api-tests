@@ -34,7 +34,6 @@ def test_delete_user_by_admin(api, openapi_validator, auth_token):
         openapi_validator.validate_response(delete_resp)
 
 
-# пользователь не может удалить свою страничку
 @pytest.mark.contract
 @allure.feature("Contract")
 @allure.story("DELETE/users/{id} delete your own page")

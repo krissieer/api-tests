@@ -92,7 +92,10 @@ def test_make_admin_unauthorized(api, openapi_validator):
 @pytest.mark.contract
 @allure.feature("Contract")
 @allure.story("POST/users/{id}/make-admin invalid ID format")
-@pytest.mark.parametrize("ID, expected_status", [(9999, 404), ("abc", 400)], ids=["nonexistent id", "invalid id format"])
+@pytest.mark.parametrize(
+    "ID, expected_status",
+    [(9999, 404), ("abc", 400), (1.5, 400)],
+    ids=["nonexistent id", "invalid id format", "float id format"])
 def test_make_admin_invalid_id_format(api, openapi_validator, ID, expected_status, auth_token):
     logger.info("[POST][NEGATIVE] make admin with invalid Id")
 

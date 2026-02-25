@@ -23,3 +23,17 @@ def assert_user_response(data, expected_login, expected_firstName, expected_last
     assert data["firstName"] == expected_firstName, f"Ожидалось {expected_firstName}, получено {data['firstName']}"
     assert data["lastName"] == expected_lastName, f"Ожидалось {expected_lastName}, получено {data['lastName']}"
 
+
+def assert_user_is_admin(data, expected_login, expected_firstName, expected_lastName):
+    assert "id" in data
+    assert data["login"] == expected_login, f"Ожидалось {expected_login}, получено {data['login']}"
+    assert data["firstName"] == expected_firstName, f"Ожидалось {expected_firstName}, получено {data['firstName']}"
+    assert data["lastName"] == expected_lastName, f"Ожидалось {expected_lastName}, получено {data['lastName']}"
+    assert data["role"]["id"] == 2, f"Ожидалось 2, получено {data['role']['id']}"
+
+def assert_health_card(data, expected_date, expected_status, expected_notes, cat_id):
+    assert "id" in data
+    assert data["lastVaccination"] == expected_date, f"Ожидалось {expected_date}, получено {data['lastVaccination']}"
+    assert data["medicalStatus"] == expected_status, f"Ожидалось {expected_status}, получено {data['medicalStatus']}"
+    assert data.get("notes") == expected_notes, f"Ожидалось {expected_notes}, получено {data.get('notes')}"
+    assert data["cat"]["id"] == cat_id, f"Ожидалось {cat_id}, получено {data['cat']['id']}"
