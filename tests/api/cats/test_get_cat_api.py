@@ -5,7 +5,6 @@ from utils.models import assert_health_card, assert_cat_response
 import logging
 logger = logging.getLogger(__name__)
 
-
 @pytest.mark.api
 @allure.feature("API")
 @allure.story("GET/cats/{id}")
