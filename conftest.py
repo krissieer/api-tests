@@ -68,7 +68,7 @@ def pytest_addoption(parser):
     parser.addoption(
         "--base-url",
         action="store",
-        default="http://localhost:8000",
+        default="http://localhost:3000/api",
         help="Base URL for API tests"
     )
 
