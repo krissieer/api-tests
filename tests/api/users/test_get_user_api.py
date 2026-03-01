@@ -66,7 +66,6 @@ def test_user_with_adopted_cat(api):
         logger.info("Получаем список котов пользователя")
         get_resp = api.get_adopted_cats_by_userId(user_id, token=token)
         logger.debug(f"Cписок котов: {get_resp.json()}")
-        logger.debug(f"Длина списка: {len(get_resp.json())}")
 
     # Assert
     with allure.step("Проверяем HTTP-статус"):
@@ -78,8 +77,6 @@ def test_user_with_adopted_cat(api):
         assert get_resp.status_code == 200, f"Ожидалось 200, получено {get_resp.status_code}"
 
     with allure.step("Проверяем количество котов в списке"):
-        logger.info(f"Проверяем количество котов в списке: {len(get_resp.json())}")
-        # assert len(get_resp.json()["cats"]) == 1
-        # assert get_resp.json()["cats"][0]["id"] == cat_id
-        assert len(get_resp.json()) == 1
-        assert get_resp.json()[0]["id"] == cat_id
+        logger.info(f"Проверяем количество котов в списке: {len(get_resp.json()['cats'])}")
+        assert len(get_resp.json()["cats"]) == 1
+        assert get_resp.json()["cats"][0]["id"] == cat_id

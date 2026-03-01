@@ -6,6 +6,7 @@ from utils.helpers import get_userId_by_login
 import logging
 logger = logging.getLogger(__name__)
 
+# @pytest.mark.one
 @pytest.mark.api
 @allure.feature("API")
 @allure.story("GET/cats/{id}")
@@ -27,6 +28,9 @@ def test_get_cat_with_health_card(api):
         cat_resp = api.create_cat(cat_payload, token)
         allure.attach(str(cat_payload), name="Cat", attachment_type=allure.attachment_type.JSON)
     cat_id = cat_resp.json()["id"]
+    logger.debug(f"cat response: {cat_resp.json()}")
+    logger.debug(f"cat_id: {cat_id}")
+    logger.debug(f"CAT: {api.get_cat_by_id(cat_id)}")
 
     payload = build_health_card()
     with allure.step("Создаем мед.книжку коту"):
@@ -40,16 +44,18 @@ def test_get_cat_with_health_card(api):
     # Act
     with allure.step("Получаем созданного кота по Id"):
         logger.info("Получаем созданного кота по Id")
-        get_resp = api.get_cat_by_id(cat_id).json()
-        logger.debug(f"Найденный кот: {get_resp}")
-        allure.attach(str(get_resp), name="gotten cat", attachment_type=allure.attachment_type.JSON)
+        get_resp = api.get_cat_by_id(cat_id)
+        logger.debug(f"Status: {get_resp.status_code}")
+        cat = get_resp.json()
+        logger.debug(f"Найденный кот: {cat}")
+        allure.attach(str(cat), name="gotten cat", attachment_type=allure.attachment_type.JSON)
 
     # Assert
     with allure.step("Проверяем поля в ответе"):
         logger.info("Проверяем поля в ответе")
-        assert_cat_response(get_resp, cat_payload["name"], cat_payload["age"], cat_payload["breed"], cat_payload.get("history"), cat_payload.get("description"))
-        assert_health_card(get_resp["healthCard"], payload["lastVaccination"], payload["medicalStatus"], payload.get("notes"))
-        assert_adoption_data(get_resp, True, user_id)
+        assert_cat_response(cat, cat_payload["name"], cat_payload["age"], cat_payload["breed"], cat_payload.get("history"), cat_payload.get("description"))
+        assert_health_card(cat["healthCard"], payload["lastVaccination"], payload["medicalStatus"], payload.get("notes"))
+        assert_adoption_data(cat, True, user_id)
 
 
 @pytest.mark.api
