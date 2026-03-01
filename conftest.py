@@ -55,15 +55,14 @@ def auth_token(api):
     assert resp.status_code == 200
     return resp.json()["access_token"]
 
-
-@pytest.fixture(scope="session")
-def api():
-    return ShelterClient(base_url=base_url)
-
 @pytest.fixture(scope="session")
 def openapi_validator():
     return OpenAPIValidator("openapi.yaml")
 
+
+@pytest.fixture(scope="session")
+def api(base_url):
+    return ShelterClient(base_url=base_url)
 
 def pytest_addoption(parser):
     parser.addoption(
