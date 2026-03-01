@@ -1,0 +1,60 @@
+name: API Tests
+
+on:
+  # Вызов из репозитория с решением через workflow_call
+  workflow_call:
+    inputs:
+      base_url:
+        required: true
+        type: string
+
+  # Ручной запуск
+  workflow_dispatch:
+    inputs:
+      base_url:
+        required: true
+        default: "http://localhost:3000"
+
+jobs:
+  api-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout tests repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Determine BASE_URL
+        id: vars
+        run: |
+          if [ -n "${{ inputs.base_url }}" ]; then
+            echo "BASE_URL=${{ inputs.base_url }}" >> $GITHUB_ENV
+          else
+            echo "BASE_URL=${{ github.event.inputs.base_url }}" >> $GITHUB_ENV
+          fi
+
+      - name: Show target
+        run: echo "Testing backend at $BASE_URL"
+
+      - name: Run tests
+        run: |
+          pytest -v \
+            --base-url=$BASE_URL \
+            --alluredir=allure-results
+
+      - name: Upload Allure results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: allure-results
+          path: allure-results
