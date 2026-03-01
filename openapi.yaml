@@ -186,14 +186,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserEntity"
-                }
-              }
-            }
+            "description": "Success"
           },
           "400": {
             "description": "Invalid ID"

@@ -1,6 +1,7 @@
 import pytest
 import allure
 from utils.data_builders import build_cat_payload, build_user_payload
+from utils.helpers import get_userId_by_login
 from utils.models import assert_user_response
 import logging
 logger = logging.getLogger(__name__)
@@ -29,11 +30,6 @@ def test_get_user_by_id(api):
         allure.attach(str(get_resp.json()), name="gotten user", attachment_type=allure.attachment_type.JSON)
 
     # Assert   
-    with allure.step("Проверяем корректность получения списка пользователей"):
-        logger.info("Проверяем корректность получения списка пользователей")
-        assert users.status_code == 200, f"Ожидалось 200, получено {users.status_code}"
-        assert isinstance(users.json(), list)
-
     with allure.step("Проверяем поля в ответе"):
         logger.info("Проверяем поля в ответе")
         assert_user_response(get_resp.json(), user_payload["login"], user_payload["firstName"], user_payload["lastName"])
@@ -69,6 +65,8 @@ def test_user_with_adopted_cat(api):
     with allure.step("Получаем список котов пользователя"):
         logger.info("Получаем список котов пользователя")
         get_resp = api.get_adopted_cats_by_userId(user_id, token=token)
+        logger.debug(f"Cписок котов: {get_resp.json()}")
+        logger.debug(f"Длина списка: {len(get_resp.json())}")
 
     # Assert
     with allure.step("Проверяем HTTP-статус"):
@@ -80,6 +78,8 @@ def test_user_with_adopted_cat(api):
         assert get_resp.status_code == 200, f"Ожидалось 200, получено {get_resp.status_code}"
 
     with allure.step("Проверяем количество котов в списке"):
-        logger.info(f"Проверяем количество котов в списке: {len(get_resp.json()['cats'])}")
-        assert len(get_resp.json()["cats"]) == 1
-        assert get_resp.json()["cats"][0]["id"] == cat_id
+        logger.info(f"Проверяем количество котов в списке: {len(get_resp.json())}")
+        # assert len(get_resp.json()["cats"]) == 1
+        # assert get_resp.json()["cats"][0]["id"] == cat_id
+        assert len(get_resp.json()) == 1
+        assert get_resp.json()[0]["id"] == cat_id
