@@ -25,6 +25,17 @@ def assert_user_response(data, expected_login, expected_firstName, expected_last
     assert data["firstName"] == expected_firstName, f"Ожидалось {expected_firstName}, получено {data['firstName']}"
     assert data["lastName"] == expected_lastName, f"Ожидалось {expected_lastName}, получено {data['lastName']}"
 
+def assert_summary_response(data, totalAnimals, adoptedCount, adoptionRate):
+    assert data["totalAnimals"] == totalAnimals, f"Ожидалось {totalAnimals}, получено {data['totalAnimals']}"
+    assert data["adoptedCount"] == adoptedCount, f"Ожидалось {adoptedCount}, получено {data['adoptedCount']}"
+    assert data["adoptionRate"] == adoptionRate, f"Ожидалось {adoptionRate}, получено {data['adoptionRate']}"
+
+def assert_adopters_response(data: list, expected: list[dict]):
+    assert len(data) == len(expected), f"Ожидалось {len(expected)} записей, получено {len(data)}"
+    for index, expected_item in enumerate(expected):
+        actual_item = data[index]
+        assert actual_item["id"] == expected_item["id"], f"[{index}] Ожидалось id={expected_item['id']}, получено {actual_item['id']}"
+        assert actual_item["count"] == expected_item["count"], f"[{index}] Ожидалось count={expected_item['count']}, получено {actual_item['count']}"
 
 def assert_user_is_admin(data, expected_login, expected_firstName, expected_lastName):
     assert "id" in data

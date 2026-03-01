@@ -51,3 +51,48 @@ def test_get_cat_with_health_card(api):
         assert_health_card(get_resp["healthCard"], payload["lastVaccination"], payload["medicalStatus"], payload.get("notes"))
         assert_adoption_data(get_resp, True, user_id)
 
+
+@pytest.mark.api
+@allure.feature("API")
+@allure.story("GET/cats filters")
+def test_get_cats_with_filters(api):
+    logger.info("[API] checking filtering cats by age, breed and adoption status")
+
+    # Arrange
+    user_payload = build_user_payload()
+    with allure.step("Регистрируемся"):
+        logger.info(f"Регистрация: {user_payload}")
+        reg_resp = api.register(user_payload)
+        allure.attach(str(user_payload), name="User", attachment_type=allure.attachment_type.JSON)
+        token = reg_resp.json()["access_token"]
+    user_id = get_userId_by_login(api, user_payload['login'], token)
+
+    with allure.step("Создаём 2ух котов"):
+        logger.info("Создаём 2ух котов")
+        cat_1 = api.create_cat(build_cat_payload(age=0, breed="Test_breed_1"), token=token).json()["id"]
+        cat_2 = api.create_cat(build_cat_payload(age=0, breed="Test_breed_2"), token=token).json()["id"]
+        allure.attach(str(api.get_all_cats().json()), name="All cats", attachment_type=allure.attachment_type.JSON)
+
+    with allure.step("Обновляем данные 1го кота о владельце"):
+        logger.info("Обновляем данные 1го кота о владельце")
+        api.adopt_cat(cat_1, {"userId": user_id}, token=token)
+        allure.attach(str(api.get_cat_by_id(cat_1).json()), name="Cat_1", attachment_type=allure.attachment_type.JSON)
+
+    # Act
+    with allure.step("Получаем только котят + Test_breed_1 + с владельцем"):
+        logger.info("Получаем только котят + Test_breed_1 + с владельцем")
+        get_resp = api.get_all_cats({"breed": "Test_breed_1", "isAdopted": "true", "isKitten": "true"})
+        allure.attach(str(get_resp.json()), name="Adopted Test_breed_1 kittens", attachment_type=allure.attachment_type.JSON)
+    
+    # Assert
+    with allure.step("Проверяем HTTP-статус"):
+        logger.info(f"HTTP-статус: {get_resp.status_code}")
+        assert get_resp.status_code == 200, f"Ожидалось 200, получено {get_resp.status_code}"
+    with allure.step("Проверяем данные в ответе"): 
+        logger.info("Проверяем данные в ответе")
+        assert len(get_resp.json()) == 1, f"Ожидалось 1, получено {len(get_resp.json())}"
+        assert get_resp.json()[0]["breed"] == "Test_breed_1", f"Ожидалось 'Test_breed_1', получено {get_resp.json()[0]['breed']}"
+        assert get_resp.json()[0]["isAdopted"] is True, f"Ожидалось True, получено {get_resp.json()[0]['isAdopted']}"
+        assert get_resp.json()[0]["age"] < 1, f"Ожидалось 0, получено {get_resp.json()[0]['age']}"
+
+
