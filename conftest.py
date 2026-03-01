@@ -56,9 +56,9 @@ def auth_token(api):
     return resp.json()["access_token"]
 
 
-# @pytest.fixture(scope="session")
-# def api():
-#     return ShelterClient(base_url="http://localhost:3000")
+@pytest.fixture(scope="session")
+def api():
+    return ShelterClient(base_url=base_url)
 
 @pytest.fixture(scope="session")
 def openapi_validator():
