@@ -26,9 +26,9 @@ def clean_test_data(api):
     cleanup_test_cats(api)
 
 
-@pytest.fixture(scope="session")
-def api():
-    return ShelterClient(base_url="http://localhost:3000")
+# @pytest.fixture(scope="session")
+# def api():
+#     return ShelterClient(base_url="http://localhost:3000")
 
 
 @pytest.fixture(scope="session")
@@ -43,3 +43,21 @@ def configure_logging():
     formatter = logging.Formatter("[%(levelname)s] [%(name)s] %(message)s")
     logging.getLogger("urllib3").setLevel(logging.INFO)
     logging.getLogger("requests").setLevel(logging.INFO)
+
+
+
+@pytest.fixture(scope="session")
+def api(base_url):
+    return ShelterClient(base_url=base_url)
+
+@pytest.fixture(scope="session")
+def base_url(request):
+    return request.config.getoption("--base-url")
+
+def pytest_addoption(parser):
+    parser.addoption(
+        "--base-url",
+        action="store",
+        default="http://localhost:3000",
+        help="Base URL for API tests"
+    )

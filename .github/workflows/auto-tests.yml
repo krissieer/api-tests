@@ -35,13 +35,9 @@ jobs:
           pip install -r requirements.txt
 
       - name: Determine BASE_URL
-        id: vars
         run: |
-          if [ -n "${{ inputs.base_url }}" ]; then
-            echo "BASE_URL=${{ inputs.base_url }}" >> $GITHUB_ENV
-          else
-            echo "BASE_URL=${{ github.event.inputs.base_url }}" >> $GITHUB_ENV
-          fi
+          # inputs.base_url существует и в workflow_call, и в workflow_dispatch
+          echo "BASE_URL=${{ inputs.base_url }}" >> $GITHUB_ENV
 
       - name: Show target
         run: echo "Testing backend at $BASE_URL"
