@@ -56,13 +56,26 @@ def auth_token(api):
     return resp.json()["access_token"]
 
 
-@pytest.fixture(scope="session")
-def api():
-    return ShelterClient(base_url="http://localhost:3000")
+# @pytest.fixture(scope="session")
+# def api():
+#     return ShelterClient(base_url="http://localhost:3000")
 
 @pytest.fixture(scope="session")
 def openapi_validator():
     return OpenAPIValidator("openapi.yaml")
+
+
+def pytest_addoption(parser):
+    parser.addoption(
+        "--base-url",
+        action="store",
+        default="http://localhost:8000",
+        help="Base URL for API tests"
+    )
+
+@pytest.fixture(scope="session")
+def base_url(request):
+    return request.config.getoption("--base-url")
 
 @pytest.fixture(scope="session", autouse=True)
 def configure_logging():
