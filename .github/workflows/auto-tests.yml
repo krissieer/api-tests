@@ -13,7 +13,7 @@ on:
     inputs:
       base_url:
         required: true
-        default: "http://localhost:3000/api
+        default: "http://localhost:3000/api"
 
 jobs:
   api-tests:
