@@ -623,6 +623,53 @@
         ]
       }
     },
+    "/cats/{id}/chip": {
+      "post": {
+        "operationId": "CatsController_chipCat",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Chipping successful, code received."
+          },
+          "400": {
+            "description": "The data is incorrect."
+          },
+          "401": {
+            "description": "Not authorized: No token provided or token invalid."
+          },
+          "403": {
+            "description": "Forbidden: You do not have administrator rights."
+          },
+          "404": {
+            "description": "Cat not found."
+          },
+          "409": {
+            "description": "Conflict: The cat is already microchipped."
+          },
+          "502": {
+            "description": "The external system is unavailable."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Register cat with RosKotMonitoring",
+        "tags": [
+          "Cats Management"
+        ]
+      }
+    },
     "/stats/summary": {
       "get": {
         "operationId": "StatsController_getSummary",
@@ -690,6 +737,41 @@
         "summary": "Get most active adopters",
         "tags": [
           "Statistics"
+        ]
+      }
+    },
+    "/external-api/roskot/register-chip": {
+      "post": {
+        "operationId": "RosKotPermController_registerCat",
+        "parameters": [
+          {
+            "name": "x-api-key",
+            "required": true,
+            "in": "header",
+            "description": "Secret access key",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RosKotRegistrationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "Simulating an external chip registration API",
+        "tags": [
+          "Perm-External-Agency (РосКотМониторинг)"
         ]
       }
     }
@@ -869,6 +951,25 @@
         "required": [
           "lastVaccination",
           "medicalStatus"
+        ]
+      },
+      "RosKotRegistrationDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Барсик",
+            "description": "Имя кошки"
+          },
+          "breed": {
+            "type": "string",
+            "example": "Метис",
+            "description": "Порода кошки"
+          }
+        },
+        "required": [
+          "name",
+          "breed"
         ]
       }
     }

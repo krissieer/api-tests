@@ -3,6 +3,8 @@ import logging
 from utils.api_client import ShelterClient
 from utils.openapi_validator import OpenAPIValidator
 import uuid
+import os
+from dotenv import load_dotenv
 
 # Удаление всех котов    
 def cleanup_test_cats(api_client, auth_token):
@@ -75,3 +77,9 @@ def configure_logging():
 
     logging.getLogger("urllib3").setLevel(logging.INFO)
     logging.getLogger("requests").setLevel(logging.INFO)
+
+
+load_dotenv()
+@pytest.fixture(scope="session")
+def roskot_api_key():
+    return os.getenv("ROSKOT_API_KEY")

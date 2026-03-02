@@ -35,11 +35,17 @@ def assert_user_is_admin(data, expected_login, expected_firstName, expected_last
 
 def assert_health_card(data, expected_date, expected_status, expected_notes):
     assert "id" in data
-    
     returned_dt = datetime.fromisoformat(data["lastVaccination"].replace("Z", "+00:00"))
     expected_dt = datetime.strptime(expected_date, "%Y-%m-%d")
     delta_days = abs((returned_dt.date() - expected_dt.date()).days)
     assert delta_days <= 1, f"Ожидалось {expected_dt.date()}, получено {returned_dt.date()}"
-    
     assert data["medicalStatus"] == expected_status, f"Ожидалось {expected_status}, получено {data['medicalStatus']}"
     assert data.get("notes") == expected_notes, f"Ожидалось {expected_notes}, получено {data.get('notes')}"
+
+def assert_chip_registration(data):
+    assert "chipId" in data
+    assert data["chipId"].startswith("RU-STATE-")
+    assert data["registrationDate"] is not None, f"Oжидалась дата, получено {data['registrationDate']}"
+    assert data["status"] == "SUCCESS", f"Ожидалось 'SUCCESS', получено {data['status']}"
+    assert data["metadata"]["agency"] == "RosKotMonitoring", f"Ожидалось 'RosKotMonitoring', получено {data['metadata']['agency']}"
+    assert data["metadata"]["region"] == "Perm-region", f"Ожидалось 'Perm-region', получено {data['metadata']['region']}"

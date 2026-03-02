@@ -7,6 +7,7 @@ class ShelterClient:
         self.users_url = f"{base_url}/users"
         self.stats_url = f"{base_url}/stats"
         self.auth_url = f"{base_url}/auth"
+        self.external = f"{base_url}/external-api/roskot"
 
     # Задание №1
     # Методы для кошек
@@ -80,3 +81,13 @@ class ShelterClient:
     # Методы для пользователей
     def make_admin(self, user_id, token=None):
         return requests.post(f"{self.users_url}/{user_id}/make-admin", headers=self._headers(token))
+
+    # Задание №7
+    # Методы для кошек
+    def chip_cat(self, cat_id, token=None):
+        return requests.post(f"{self.cats_url}/{cat_id}/chip", headers=self._headers(token))
+    
+    # Методы для внешнего сервиса
+    def register_chip(self, data, api_key):
+        headers = {"Content-Type": "application/json", "x-api-key": api_key}
+        return requests.post(f"{self.external}/register-chip", json=data, headers=headers)
