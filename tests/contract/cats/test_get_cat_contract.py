@@ -25,8 +25,6 @@ def test_get_all_cats_contract(api, openapi_validator):
         logger.info("Проверка контракта")
         openapi_validator.validate_response(get_resp)
 
-пр
-@pytest.mark.one
 @pytest.mark.contract
 @allure.feature("Contract")
 @allure.story("GET/cats/{id}")
@@ -40,9 +38,6 @@ def test_get_cat_by_Id_contract(api, openapi_validator, auth_token):
         create_resp = api.create_cat(cat_payload, token=auth_token)
         allure.attach(str(cat_payload), name="Cat", attachment_type=allure.attachment_type.JSON)
     cat_id = create_resp.json()["id"]
-
-    logger.debug(f"cat_id тип: {type(cat_id)}")
-    logger.debug(f"cat_id значение: {repr(cat_id)}")
 
     # Act
     with allure.step("Получениe кота по Id"):

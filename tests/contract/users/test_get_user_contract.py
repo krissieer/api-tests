@@ -46,7 +46,6 @@ def test_get_users_unauthorized_contract(api, openapi_validator):
         openapi_validator.validate_response(get_resp)
 
 
-
 @pytest.mark.contract
 @allure.feature("Contract")
 @allure.story("GET/users/{id}")

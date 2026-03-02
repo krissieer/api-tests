@@ -6,7 +6,6 @@ from utils.helpers import get_userId_by_login
 import logging
 logger = logging.getLogger(__name__)
 
-# @pytest.mark.one
 @pytest.mark.api
 @allure.feature("API")
 @allure.story("GET/cats/{id}")
@@ -28,9 +27,6 @@ def test_get_cat_with_health_card(api):
         cat_resp = api.create_cat(cat_payload, token)
         allure.attach(str(cat_payload), name="Cat", attachment_type=allure.attachment_type.JSON)
     cat_id = cat_resp.json()["id"]
-    logger.debug(f"cat response: {cat_resp.json()}")
-    logger.debug(f"cat_id: {cat_id}")
-    logger.debug(f"CAT: {api.get_cat_by_id(cat_id)}")
 
     payload = build_health_card()
     with allure.step("Создаем мед.книжку коту"):
@@ -44,9 +40,7 @@ def test_get_cat_with_health_card(api):
     # Act
     with allure.step("Получаем созданного кота по Id"):
         logger.info("Получаем созданного кота по Id")
-        get_resp = api.get_cat_by_id(cat_id)
-        logger.debug(f"Status: {get_resp.status_code}")
-        cat = get_resp.json()
+        cat = api.get_cat_by_id(cat_id).json()
         logger.debug(f"Найденный кот: {cat}")
         allure.attach(str(cat), name="gotten cat", attachment_type=allure.attachment_type.JSON)
 
