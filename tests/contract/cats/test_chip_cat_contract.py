@@ -2,6 +2,7 @@ import pytest
 import allure
 from utils.data_builders import build_cat_payload, build_user_payload
 import utils.openapi_validator
+from datetime import datetime
 import logging
 logger = logging.getLogger(__name__)
 
@@ -144,3 +145,63 @@ def test_chip_cat_forbidden_contract(api, openapi_validator):
     with allure.step("Проверяем контракт"):
         logger.info("Проверка контракта")
         openapi_validator.validate_response(post_resp)
+
+
+@pytest.mark.contract
+@allure.feature("Contract")
+@allure.story("POST/cats/{id}/chip Internal Server Error")
+def test_chip_cat_external_system_error_contract(api, openapi_validator, auth_token):
+    logger.info("[POST][NEGATIVE] External system error simulation")
+
+    # Arrange
+    cat_payload = build_cat_payload(name="SystemError")
+    with allure.step("Создание кота"):
+        logger.info(f"Создание кота: {cat_payload}")
+        cat_resp = api.create_cat(cat_payload, auth_token)
+        allure.attach(str(cat_payload), name="Cat", attachment_type=allure.attachment_type.JSON)
+    cat_id = cat_resp.json()["id"]
+
+    # Act
+    with allure.step("Чипируем кота"):
+        logger.info(f"Чипируем кота")
+        post_resp = api.chip_cat(cat_id, auth_token)
+
+    # Assert
+    with allure.step("Проверяем HTTP-статус и ошибку"):
+        logger.info(f"HTTP-статус: {post_resp.status_code}")
+        assert post_resp.status_code == 502, f"Ожидалось 502, получено {post_resp.status_code}"
+    with allure.step("Проверяем контракт"):
+        logger.info("Проверка контракта")
+        openapi_validator.validate_response(post_resp)
+
+@pytest.mark.contract
+@allure.feature("Contract")
+@allure.story("POST/cats/{id}/chip Network Timeout")
+def test_chip_cat_timeout_contract(api, openapi_validator, auth_token):
+    logger.info("[POST][NEGATIVE] External timeout simulation")
+
+    # Arrange
+    cat_payload = build_cat_payload(name="Slowy")
+    with allure.step("Создание кота"):
+        logger.info(f"Создание кота: {cat_payload}")
+        cat_resp = api.create_cat(cat_payload, auth_token)
+        allure.attach(str(cat_payload), name="Cat", attachment_type=allure.attachment_type.JSON)
+    cat_id = cat_resp.json()["id"]
+
+    # Act
+    start_time = datetime.now()
+    with allure.step("Чипируем кота"):
+        logger.info(f"Чипируем кота")
+        post_resp = api.chip_cat(cat_id, auth_token)
+    end_time = datetime.now()
+
+    # Assert
+    with allure.step("Проверяем HTTP-статус"):
+        logger.info(f"HTTP-статус: {post_resp.status_code}")
+        assert post_resp.status_code == 504, f"Ожидалось 504, получено {post_resp.status_code}"
+    with allure.step("Проверяем контракт"):
+        logger.info("Проверка контракта")
+        openapi_validator.validate_response(post_resp)
+    with allure.step("Проверяем таймаут"):
+        logger.info("Проверка таймаута")
+        assert (end_time - start_time).seconds <= 6

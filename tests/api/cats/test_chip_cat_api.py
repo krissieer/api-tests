@@ -2,7 +2,6 @@ import pytest
 import allure
 from utils.data_builders import build_cat_payload
 from utils.models import assert_cat_response
-from datetime import datetime
 import logging
 logger = logging.getLogger(__name__)
 
@@ -44,58 +43,3 @@ def test_chip_cat_success(api, auth_token):
     with allure.step("Проверяем поля в ответе"):
         logger.info("Проверяем поля в ответе")
         assert_cat_response(get_resp, cat_payload["name"], cat_payload["age"], cat_payload["breed"], cat_payload.get("history"), cat_payload.get("description"))
-    
-
-@pytest.mark.api
-@allure.feature("API")
-@allure.story("POST/cats/{id}/chip Internal Server Error")
-def test_chip_cat_external_system_error(api, auth_token):
-    logger.info("[API] External system error simulation")
-
-    # Arrange
-    cat_payload = build_cat_payload(name="SystemError")
-    with allure.step("Создание кота"):
-        logger.info(f"Создание кота: {cat_payload}")
-        cat_resp = api.create_cat(cat_payload, auth_token)
-        allure.attach(str(cat_payload), name="Cat", attachment_type=allure.attachment_type.JSON)
-    cat_id = cat_resp.json()["id"]
-
-    # Act
-    with allure.step("Чипируем кота"):
-        logger.info(f"Чипируем кота")
-        post_resp = api.chip_cat(cat_id, auth_token)
-
-    # Assert
-    with allure.step("Проверяем HTTP-статус и ошибку"):
-        logger.info(f"HTTP-статус: {post_resp.status_code}")
-        assert post_resp.status_code == 500, f"Ожидалось 500, получено {post_resp.status_code}"
-        assert "RosKotMonitoring Error" in post_resp.text
-
-@pytest.mark.api
-@allure.feature("API")
-@allure.story("POST/cats/{id}/chip Network Timeout")
-def test_chip_cat_timeout(api, auth_token):
-    logger.info("[API] External timeout simulation")
-
-    # Arrange
-    cat_payload = build_cat_payload(name="Slowy")
-    with allure.step("Создание кота"):
-        logger.info(f"Создание кота: {cat_payload}")
-        cat_resp = api.create_cat(cat_payload, auth_token)
-        allure.attach(str(cat_payload), name="Cat", attachment_type=allure.attachment_type.JSON)
-    cat_id = cat_resp.json()["id"]
-
-    # Act
-    start_time = datetime.now()
-    with allure.step("Чипируем кота"):
-        logger.info(f"Чипируем кота")
-        post_resp = api.chip_cat(cat_id, auth_token)
-    end_time = datetime.now()
-
-    # Assert
-    with allure.step("Проверяем HTTP-статус"):
-        logger.info(f"HTTP-статус: {post_resp.status_code}")
-        assert post_resp.status_code == 500, f"Ожидалось 500, получено {post_resp.status_code}"
-    with allure.step("Проверяем ошибку и таймаут"):
-        assert "RosKotMonitoring Error" in post_resp.text
-        assert (end_time - start_time).seconds <= 6
